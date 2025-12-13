@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+  运输任务 Mapper XML 文件
+  对应表：biz_transports
+  功能：提供运输任务的增删改查 SQL 映射
+-->
+<mapper namespace="com.app.springbootcargovision.mapper.BizTransportMapper">
+  <!-- 
+      基础结果映射
+      将数据库字段映射到 BizTransport 实体类属性
+    -->
+  <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.BizTransport">
+    <!-- 主键 ID -->
+    <id column="id" property="id" jdbcType="BIGINT"/>
+    <!-- 运输编号 -->
+    <result column="transport_no" property="transportNo" jdbcType="VARCHAR"/>
+    <!-- 货物 ID -->
+    <result column="goods_id" property="goodsId" jdbcType="BIGINT"/>
+    <!-- 数量 -->
+    <result column="quantity" property="quantity" jdbcType="INTEGER"/>
+    <!-- 起始地 -->
+    <result column="origin" property="origin" jdbcType="VARCHAR"/>
+    <!-- 目的地 -->
+    <result column="destination" property="destination" jdbcType="VARCHAR"/>
+    <!-- 承运商 -->
+    <result column="carrier" property="carrier" jdbcType="VARCHAR"/>
+    <!-- 车牌号 -->
+    <result column="vehicle_no" property="vehicleNo" jdbcType="VARCHAR"/>
+    <!-- 司机姓名 -->
+    <result column="driver_name" property="driverName" jdbcType="VARCHAR"/>
+    <!-- 司机电话 -->
+    <result column="driver_phone" property="driverPhone" jdbcType="VARCHAR"/>
+    <!-- 预计/实际开始时间 -->
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
+    <!-- 预计/实际结束时间 -->
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP"/>
+    <!-- 状态：0-待运输, 1-运输中, 2-已完成, 3-已取消 -->
+    <result column="status" property="status" jdbcType="TINYINT"/>
+    <!-- 备注 -->
+    <result column="remarks" property="remarks" jdbcType="VARCHAR"/>
+    <!-- 逻辑删除标记：0-未删除，1-已删除 -->
+    <result column="is_deleted" property="isDeleted" jdbcType="TINYINT"/>
+    <!-- 创建人 ID -->
+    <result column="created_by" property="createdBy" jdbcType="BIGINT"/>
+    <!-- 创建时间 -->
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    <!-- 更新时间 -->
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    <!-- 关联字段：货物名称 -->
+    <result column="goods_name" property="goodsName" jdbcType="VARCHAR"/>
+    <!-- 关联字段：货物编号 -->
+    <result column="goods_no" property="goodsNo" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <!-- 
+      基础列列表
+      包含所有 biz_transports 表的字段，使用别名 t
+    -->
+  <sql id="Base_Column_List">
+        t.id, t.transport_no, t.goods_id, t.quantity, t.origin, t.destination, t.carrier,
+        t.vehicle_no, t.driver_name, t.driver_phone, t.start_time, t.end_time, t.status,
+        t.remarks, t.is_deleted, t.created_by, t.created_at, t.updated_at
+  </sql>
+
+  <!-- 
+      根据 ID 查询运输任务
+      @param id 运输任务 ID
+      @return 运输任务（包含货物名称和编号）
+    -->
+  <select id="selectById" resultMap="BaseResultMap">
+        select 
+    <include refid="Base_Column_List"/>
+,
+        g.name as goods_name, g.goods_no
+        from biz_transports t
+        left join base_goods g on t.goods_id = g.id
+        where t.id = #{id} and t.is_deleted = 0
+  </select>
+
+  <!-- 
+      查询运输任务列表
+      支持按运输编号、货物名称模糊查询，按状态精确查询
+      @param transportNo 运输编号（可选）
+      @param status 状态（可选）
+      @param goodsName 货物名称（可选）
+      @return 运输任务列表
+    -->
+  <select id="selectList" resultMap="BaseResultMap">
+        select 
+    <include refid="Base_Column_List"/>
+,
+        g.name as goods_name, g.goods_no
+        from biz_transports t
+        left join base_goods g on t.goods_id = g.id
+        where t.is_deleted = 0
+    <if test="transportNo != null and transportNo != ''">
+            and t.transport_no like concat('%', #{transportNo}, '%')
+    </if>
+    <if test="status != null">
+            and t.status = #{status}
+    </if>
+    <if test="goodsName != null and goodsName != ''">
+            and g.name like concat('%', #{goodsName}, '%')
+    </if>
+    <!-- 数据权限过滤 -->
+    <if test="createdBy != null">
+            and t.created_by = #{createdBy}
+    </if>
+  </select>
+
+  <!-- 
+      新增运输任务
+      @param BizTransport 运输任务对象
+    -->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into biz_transports (transport_no, goods_id, quantity, origin, destination, carrier, vehicle_no, driver_name, driver_phone, start_time, end_time, status, remarks, created_by)
+        values (#{transportNo}, #{goodsId}, #{quantity}, #{origin}, #{destination}, #{carrier}, #{vehicleNo}, #{driverName}, #{driverPhone}, #{startTime}, #{endTime}, #{status}, #{remarks}, #{createdBy})
+  </insert>
+
+  <!-- 
+      更新运输任务
+      动态更新不为 null 的字段
+      @param BizTransport 运输任务对象
+    -->
+  <update id="update">
+        update biz_transports
+    <set>
+      <if test="quantity != null">quantity = #{quantity},</if>
+      <if test="origin != null">origin = #{origin},</if>
+      <if test="destination != null">destination = #{destination},</if>
+      <if test="carrier != null">carrier = #{carrier},</if>
+      <if test="vehicleNo != null">vehicle_no = #{vehicleNo},</if>
+      <if test="driverName != null">driver_name = #{driverName},</if>
+      <if test="driverPhone != null">driver_phone = #{driverPhone},</if>
+      <if test="startTime != null">start_time = #{startTime},</if>
+      <if test="endTime != null">end_time = #{endTime},</if>
+      <if test="status != null">status = #{status},</if>
+      <if test="remarks != null">remarks = #{remarks},</if>
+    </set>
+        where id = #{id}
+  </update>
+
+  <!-- 
+      逻辑删除运输任务
+      将 is_deleted 字段置为 1
+      @param id 运输任务 ID
+    -->
+  <update id="deleteById">
+        update biz_transports set is_deleted = 1 where id = #{id}
+  </update>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- 
+  货物类型 Mapper XML 文件
+  对应表：base_goods_types
+  功能：提供货物类型的查询 SQL 映射
+-->
+<mapper namespace="com.app.springbootcargovision.mapper.BaseGoodsTypeMapper">
+    <!-- 
+      基础结果映射
+      将数据库字段映射到 BaseGoodsType 实体类属性
+    -->
+    <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.BaseGoodsType">
+        <!-- 主键 ID -->
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <!-- 类型名称 -->
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+        <!-- 排序值 -->
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <!-- 创建时间 -->
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <!-- 更新时间 -->
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 
+      基础列列表
+      包含所有 base_goods_types 表的字段
+    -->
+    <sql id="Base_Column_List">
+        id, type_name, sort_order, created_at, updated_at
+    </sql>
+
+    <!-- 
+      根据 ID 查询货物类型
+      @param id 类型 ID
+      @return 货物类型信息
+    -->
+    <select id="selectById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from base_goods_types
+        where id = #{id}
+    </select>
+
+    <!-- 
+      查询所有货物类型
+      @return 货物类型列表，按 sort_order 升序排列
+    -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from base_goods_types
+        order by sort_order asc
+    </select>
+</mapper>

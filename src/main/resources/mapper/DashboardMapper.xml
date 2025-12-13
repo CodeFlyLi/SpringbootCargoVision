@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.springbootcargovision.mapper.DashboardMapper">
+
+    <select id="getTransportStats" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN status = 2 THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status = 3 THEN 1 ELSE 0 END) as abnormal
+        FROM biz_transports
+        WHERE is_deleted = 0
+    </select>
+
+    <select id="getDetectionStats" resultType="java.util.Map">
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN damage_level > 0 THEN 1 ELSE 0 END) as abnormal,
+            SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as pending
+        FROM biz_detections
+    </select>
+
+    <select id="getTransportTrend" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(created_at, '%Y-%m-%d') as date,
+            COUNT(*) as count
+        FROM biz_transports
+        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+          AND is_deleted = 0
+        GROUP BY date
+        ORDER BY date ASC
+    </select>
+
+    <select id="getDetectionTrend" resultType="java.util.Map">
+        SELECT
+            DATE_FORMAT(created_at, '%Y-%m-%d') as date,
+            COUNT(*) as count
+        FROM biz_detections
+        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY date
+        ORDER BY date ASC
+    </select>
+
+    <select id="getDamageDistribution" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN damage_level = 0 THEN '无破损'
+                WHEN damage_level = 1 THEN '轻微'
+                WHEN damage_level = 2 THEN '中度'
+                WHEN damage_level = 3 THEN '严重'
+            END as name,
+            COUNT(*) as value
+        FROM biz_detections
+        GROUP BY damage_level
+        ORDER BY damage_level ASC
+    </select>
+
+    <select id="getTransportStatusDistribution" resultType="java.util.Map">
+        SELECT
+        CASE
+        WHEN status = 0 THEN '待运输'
+        WHEN status = 1 THEN '运输中'
+        WHEN status = 2 THEN '已完成'
+        WHEN status = 3 THEN '异常'
+        WHEN status = 4 THEN '已取消'
+        END as name,
+        COUNT(*) as value
+        FROM biz_transports
+        WHERE is_deleted = 0
+        GROUP BY status
+        ORDER BY status ASC
+    </select>
+
+</mapper>

@@ -1,0 +1,69 @@
+# ==========================================
+# Spring Boot 核心配置
+# ==========================================
+server:
+  port: 8080 # Web 服务器端口
+
+spring:
+  application:
+    name: SpringbootCargoVision # 应用名称
+
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver # MySQL 驱动
+    # 数据库连接 URL，包含编码、SSL 关闭和时区设置
+    url: jdbc:mysql://localhost:3306/icdds_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root # 数据库用户名
+    password: rootadmin # 数据库密码
+    # HikariCP 连接池配置
+    hikari:
+      maximum-pool-size: 10 # 最大连接池数量
+      minimum-idle: 5 # 最小空闲连接数
+      connection-timeout: 30000 # 连接超时时间（毫秒）
+      idle-timeout: 600000 # 空闲超时时间（毫秒）
+      max-lifetime: 1800000 # 连接最大存活时间（毫秒）
+      connection-test-query: SELECT 1 # 连接测试查询
+      auto-commit: true # 自动提交
+      pool-name: SpringbootHikariCP # 连接池名称
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB # 单个文件最大限制
+      max-request-size: 10MB # 单次请求总大小限制
+
+  # JSON 序列化配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss # 日期格式化
+    time-zone: GMT+8 # 时区设置（东八区）
+
+# ==========================================
+# MyBatis 配置
+# ==========================================
+mybatis:
+  # Mapper XML 文件位置
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    # 开启驼峰命名映射（如 user_name -> userName）
+    map-underscore-to-camel-case: true
+    # 控制台打印 SQL 日志（开发调试用）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# ==========================================
+# 自定义配置
+# ==========================================
+file:
+  upload-dir: ./uploads # 文件上传存储目录
+
+# ==========================================
+# AI 模型配置
+# ==========================================
+ai:
+  model:
+    # 云平台 AI 配置
+    cloud:
+      provider: "baidu" # 云平台提供商（如百度）
+      apiKey: "toMiUy8Ly1E7lEEx0IZvjVis"
+      secretKey: "Az1ThxxXan7Nd61uI6ARNZBoAfMlz4ZA"
+       # endpoint 留空，代码会自动使用默认的通用识别接口
+      endpoint: ""

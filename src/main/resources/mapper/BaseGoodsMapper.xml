@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+  货物基础信息 Mapper XML 文件
+  对应表：base_goods
+  功能：提供货物信息的增删改查 SQL 映射
+-->
+<mapper namespace="com.app.springbootcargovision.mapper.BaseGoodsMapper">
+  <!-- 
+      基础结果映射
+      将数据库字段映射到 BaseGoods 实体类属性
+    -->
+  <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.BaseGoods">
+    <!-- 主键 ID -->
+    <id column="id" property="id" jdbcType="BIGINT"/>
+    <!-- 货物编号，唯一标识 -->
+    <result column="goods_no" property="goodsNo" jdbcType="VARCHAR"/>
+    <!-- 货物名称 -->
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <!-- 货物类型 ID -->
+    <result column="type_id" property="typeId" jdbcType="BIGINT"/>
+    <!-- 货物图片 URL -->
+    <result column="image_url" property="imageUrl" jdbcType="VARCHAR"/>
+    <!-- 计量单位 -->
+    <result column="unit" property="unit" jdbcType="VARCHAR"/>
+    <!-- 重量 -->
+    <result column="weight" property="weight" jdbcType="DECIMAL"/>
+    <!-- 体积 -->
+    <result column="volume" property="volume" jdbcType="DECIMAL"/>
+    <!-- 价值 -->
+    <result column="value" property="value" jdbcType="DECIMAL"/>
+    <!-- 库存数量 -->
+    <result column="stock" property="stock" jdbcType="INTEGER"/>
+    <!-- 生产厂家 -->
+    <result column="manufacturer" property="manufacturer" jdbcType="VARCHAR"/>
+    <!-- 规格型号 -->
+    <result column="specifications" property="specifications" jdbcType="VARCHAR"/>
+    <!-- 描述信息 -->
+    <result column="description" property="description" jdbcType="VARCHAR"/>
+    <!-- 逻辑删除标记：0-未删除，1-已删除 -->
+    <result column="is_deleted" property="isDeleted" jdbcType="TINYINT"/>
+    <!-- 创建人ID -->
+    <result column="created_by" property="createdBy" jdbcType="BIGINT"/>
+    <!-- 创建时间 -->
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    <!-- 更新时间 -->
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    <!-- 关联字段：货物类型名称 -->
+    <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <!-- 
+      基础列列表
+      包含所有 base_goods 表的字段，使用别名 g
+    -->
+  <sql id="Base_Column_List">
+        g.id, g.goods_no, g.name, g.type_id, g.image_url, g.unit, g.weight, g.volume, g.value, g.stock,
+        g.manufacturer, g.specifications, g.description, g.is_deleted, g.created_by, g.created_at, g.updated_at
+  </sql>
+
+  <!-- 
+      根据 ID 查询货物信息
+      @param id 货物 ID
+      @return 货物信息（包含类型名称）
+    -->
+  <select id="selectById" resultMap="BaseResultMap">
+        select 
+    <include refid="Base_Column_List"/>
+,
+        t.type_name
+        from base_goods g
+        left join base_goods_types t on g.type_id = t.id
+        where g.id = #{id} and g.is_deleted = 0
+  </select>
+
+  <!-- 
+      根据货物编号查询货物信息
+      @param goodsNo 货物编号
+      @return 货物信息（包含类型名称）
+    -->
+  <select id="selectByGoodsNo" resultMap="BaseResultMap">
+        select 
+    <include refid="Base_Column_List"/>
+,
+        t.type_name
+        from base_goods g
+        left join base_goods_types t on g.type_id = t.id
+        where g.goods_no = #{goodsNo} and g.is_deleted = 0
+  </select>
+
+  <!-- 
+      查询货物列表
+      支持按货物编号、名称模糊查询，按类型 ID 精确查询
+      @param goodsNo 货物编号（可选）
+      @param name 货物名称（可选）
+      @param typeId 货物类型 ID（可选）
+      @return 货物列表
+    -->
+  <select id="selectList" resultMap="BaseResultMap">
+        select 
+    <include refid="Base_Column_List"/>
+,
+        t.type_name
+        from base_goods g
+        left join base_goods_types t on g.type_id = t.id
+        where g.is_deleted = 0
+    <if test="goodsNo != null and goodsNo != ''">
+            and g.goods_no like concat('%', #{goodsNo}, '%')
+    </if>
+    <if test="name != null and name != ''">
+            and g.name like concat('%', #{name}, '%')
+    </if>
+    <if test="typeId != null">
+            and g.type_id = #{typeId}
+    </if>
+    <if test="createdBy != null">
+            and g.created_by = #{createdBy}
+    </if>
+  </select>
+
+  <!-- 
+      新增货物
+      @param BaseGoods 货物对象
+    -->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into base_goods (goods_no, name, type_id, image_url, unit, weight, volume, value, stock, manufacturer, specifications, description, created_by)
+        values (#{goodsNo}, #{name}, #{typeId}, #{imageUrl}, #{unit}, #{weight}, #{volume}, #{value}, #{stock}, #{manufacturer}, #{specifications}, #{description}, #{createdBy})
+  </insert>
+
+  <!-- 
+      更新货物信息
+      动态更新不为 null 的字段
+      @param BaseGoods 货物对象
+    -->
+  <update id="update">
+        update base_goods
+    <set>
+      <if test="name != null">name = #{name},</if>
+      <if test="typeId != null">type_id = #{typeId},</if>
+      <if test="imageUrl != null">image_url = #{imageUrl},</if>
+      <if test="unit != null">unit = #{unit},</if>
+      <if test="weight != null">weight = #{weight},</if>
+      <if test="volume != null">volume = #{volume},</if>
+      <if test="value != null">value = #{value},</if>
+      <if test="stock != null">stock = #{stock},</if>
+      <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+      <if test="specifications != null">specifications = #{specifications},</if>
+      <if test="description != null">description = #{description},</if>
+    </set>
+        where id = #{id}
+  </update>
+
+  <!-- 
+      逻辑删除货物
+      将 is_deleted 字段置为 1
+      @param id 货物 ID
+    -->
+  <update id="deleteById">
+        update base_goods set is_deleted = 1 where id = #{id}
+  </update>
+</mapper>

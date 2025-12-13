@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+    系统权限 Mapper XML 配置文件
+    对应接口: com.app.springbootcargovision.mapper.SysPermissionMapper
+    功能: 提供系统权限（菜单/按钮）的增删改查 SQL 映射
+-->
+<mapper namespace="com.app.springbootcargovision.mapper.SysPermissionMapper">
+
+    <!-- 结果映射集: 将数据库查询结果映射到 SysPermission 实体类 -->
+    <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.SysPermission">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="parent_id" property="parentId" jdbcType="BIGINT"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="TINYINT"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="component" property="component" jdbcType="VARCHAR"/>
+        <result column="icon" property="icon" jdbcType="VARCHAR"/>
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 通用查询列组合 -->
+    <sql id="Base_Column_List">
+        id, parent_id, name, code, type, path, component, icon, sort_order, created_at, updated_at
+    </sql>
+
+    <!-- 新增权限 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_permissions (parent_id, name, code, type, path, component, icon, sort_order)
+        values (#{parentId}, #{name}, #{code}, #{type}, #{path}, #{component}, #{icon}, #{sortOrder})
+    </insert>
+
+    <!-- 更新权限信息 -->
+    <update id="update">
+        update sys_permissions
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="path != null">path = #{path},</if>
+            <if test="component != null">component = #{component},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据 ID 删除权限 -->
+    <delete id="deleteById">
+        delete from sys_permissions where id = #{id}
+    </delete>
+
+    <!-- 根据 ID 查询权限 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from sys_permissions where id = #{id}
+    </select>
+
+    <!-- 根据权限标识查询权限 -->
+    <select id="selectByCode" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from sys_permissions where code = #{code}
+    </select>
+
+    <!-- 查询权限列表（支持按名称、编码、类型过滤） -->
+    <select id="selectList" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/> from sys_permissions
+        <where>
+            <if test="name != null and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="code != null and code != ''">and code like concat('%', #{code}, '%')</if>
+            <if test="type != null">and type = #{type}</if>
+        </where>
+        order by sort_order
+    </select>
+
+    <!-- 根据角色 ID 查询权限列表 -->
+    <select id="selectByRoleId" resultMap="BaseResultMap">
+        select p.* from sys_permissions p
+        inner join sys_role_permissions rp on p.id = rp.permission_id
+        where rp.role_id = #{roleId}
+        order by p.sort_order
+    </select>
+
+    <!-- 根据用户 ID 查询权限列表（用于获取用户菜单） -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        select distinct p.* from sys_permissions p
+        inner join sys_role_permissions rp on p.id = rp.permission_id
+        inner join sys_user_roles ur on rp.role_id = ur.role_id
+        where ur.user_id = #{userId}
+        order by p.sort_order
+    </select>
+
+</mapper>

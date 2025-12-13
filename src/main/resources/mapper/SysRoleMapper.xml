@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+    系统角色 Mapper XML 配置文件
+    对应接口: com.app.springbootcargovision.mapper.SysRoleMapper
+    功能: 提供系统角色表的查询操作映射
+-->
+<mapper namespace="com.app.springbootcargovision.mapper.SysRoleMapper">
+
+    <!-- 结果映射集 -->
+    <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.SysRole">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="role_name" property="roleName" jdbcType="VARCHAR"/>
+        <result column="role_code" property="roleCode" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+        <collection property="permissions" ofType="com.app.springbootcargovision.model.SysPermission">
+            <id column="perm_id" property="id"/>
+            <result column="perm_name" property="name"/>
+            <result column="perm_code" property="code"/>
+            <result column="perm_type" property="type"/>
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询列组合 -->
+    <sql id="Base_Column_List">
+        r.id, r.role_name, r.role_code, r.description, r.created_at, r.updated_at
+    </sql>
+
+    <!-- 根据 ID 查询角色 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+,
+        p.id as perm_id, p.name as perm_name, p.code as perm_code, p.type as perm_type
+        from sys_roles r
+        left join sys_role_permissions rp on r.id = rp.role_id
+        left join sys_permissions p on rp.permission_id = p.id
+        where r.id = #{id}
+    </select>
+
+    <!-- 根据角色名查询角色 -->
+    <select id="selectByName" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+ from sys_roles r where r.role_name = #{roleName}
+    </select>
+
+    <!-- 根据角色编码查询角色 -->
+    <select id="selectByCode" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+ from sys_roles r where r.role_code = #{roleCode}
+    </select>
+
+    <!-- 查询所有角色列表 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        select 
+        <include refid="Base_Column_List"/>
+        from sys_roles r
+        <where>
+            <if test="name != null and name != ''">
+                and r.role_name like concat('%', #{name}, '%')
+            </if>
+            <if test="code != null and code != ''">
+                and r.role_code like concat('%', #{code}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增角色 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_roles (role_name, role_code, description)
+        values (#{roleName}, #{roleCode}, #{description})
+    </insert>
+
+    <!-- 更新角色信息 -->
+    <update id="update">
+        update sys_roles
+        <set>
+            <if test="roleName != null">role_name = #{roleName},</if>
+            <if test="roleCode != null">role_code = #{roleCode},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 根据 ID 删除角色 -->
+    <delete id="deleteById">
+        delete from sys_roles where id = #{id}
+    </delete>
+
+    <!-- 批量插入角色权限关联 -->
+    <insert id="insertRolePermissions">
+        insert into sys_role_permissions (role_id, permission_id) values
+        <foreach collection="permissionIds" item="permId" separator=",">
+            (#{roleId}, #{permId})
+        </foreach>
+    </insert>
+
+    <!-- 删除指定角色的所有权限关联 -->
+    <delete id="deleteRolePermissions">
+        delete from sys_role_permissions where role_id = #{roleId}
+    </delete>
+
+    <!-- 批量删除角色 -->
+    <delete id="deleteByIds">
+        delete from sys_roles where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 批量删除角色权限关联 -->
+    <delete id="deleteRolePermissionsByRoleIds">
+        delete from sys_role_permissions where role_id in
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </delete>
+
+    <!-- 批量删除用户角色关联 -->
+    <delete id="deleteUserRolesByRoleIds">
+        delete from sys_user_roles where role_id in
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </delete>
+</mapper>
