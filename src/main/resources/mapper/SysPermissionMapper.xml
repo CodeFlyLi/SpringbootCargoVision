@@ -71,6 +71,7 @@
             <if test="name != null and name != ''">and name like concat('%', #{name}, '%')</if>
             <if test="code != null and code != ''">and code like concat('%', #{code}, '%')</if>
             <if test="type != null">and type = #{type}</if>
+            <if test="path != null and path != ''">and path = #{path}</if>
         </where>
         order by sort_order
     </select>

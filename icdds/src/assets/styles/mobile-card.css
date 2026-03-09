@@ -1,0 +1,97 @@
+/* 强制覆盖 element-plus 的默认 padding */
+.mobile-card-item .el-card__body {
+  padding: 10px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 卡片顶部 */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f0f2f5;
+  padding-bottom: 10px;
+  flex-shrink: 0;
+}
+
+/* 卡片内容区域 */
+.card-content {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.content-item {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.content-item .label {
+  color: #909399;
+  width: 70px; /* Default width, can be overridden */
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.content-item .value {
+  color: #303133;
+  word-break: break-all;
+  flex: 1;
+}
+
+.card-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+/* 移动端卡片列表通用样式 */
+.mobile-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding: 4px;
+  flex: 1;
+  /* 确保在 iOS 上平滑滚动 */
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-card-wrapper {
+  width: 100%;
+}
+
+/* 移动端容器适配 - 解决高度和滚动问题 */
+@media (max-width: 768px) {
+  .management-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .management-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: none !important;
+    border-radius: 0 !important; /* 移动端通常铺满全屏 */
+  }
+
+  /* 使得 el-card__body 能够撑满剩余空间 */
+  .management-card > .el-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px !important;
+    overflow: hidden; /* 防止双重滚动 */
+  }
+}

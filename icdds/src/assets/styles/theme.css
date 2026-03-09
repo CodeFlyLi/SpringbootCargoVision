@@ -1,0 +1,341 @@
+/* Root variables & Light Theme (Default) */
+:root {
+  --el-color-primary: #409eff;
+  --bg-color: #f5f7fa;
+  --aside-bg-color: #ffffff;
+  --aside-text-color: #303133;
+  --header-bg-color: #ffffff;
+  --header-border-color: #e4e7ed;
+  --logo-border-color: #e4e7ed;
+  --menu-hover-bg: #ecf5ff;
+  --menu-active-bg: #409eff; /* Changed to solid primary color */
+  --menu-active-text: #ffffff; /* Changed to white */
+  --menu-text-color: #303133;
+  --logo-text-color: #409eff;
+  --text-color-primary: #303133;
+  --text-color-regular: #606266;
+  
+  /* Font Family - Default */
+  --main-font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+}
+
+/* Global Font Settings */
+body {
+  font-family: var(--main-font-family);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark Theme */
+html[data-theme='dark'] {
+  --el-color-primary: #409eff;
+  --el-color-primary-light-3: #3375b9;
+  --el-color-primary-light-5: #2a598a;
+  --el-color-primary-light-7: #213d5b;
+  --el-color-primary-light-8: #1d3043;
+  --el-color-primary-light-9: #18222c;
+  --el-color-primary-dark-2: #66b1ff;
+
+  --bg-color: #1a1a1a;
+  --aside-bg-color: #242424;
+  --aside-text-color: rgba(255, 255, 255, 0.87);
+  --header-bg-color: #242424;
+  --header-border-color: #383838;
+  --logo-border-color: #383838;
+  --menu-hover-bg: #2f2f2f;
+  --menu-active-bg: #409eff; /* Changed to solid primary color */
+  --menu-active-text: #ffffff; /* Changed to white */
+  --menu-text-color: rgba(255, 255, 255, 0.87);
+  --logo-text-color: #409eff;
+  --text-color-primary: rgba(255, 255, 255, 0.87);
+  --text-color-regular: rgba(255, 255, 255, 0.6);
+
+  /* Font Family - Dark */
+  --main-font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+
+  /* Force Element Plus variables to match Dark Theme */
+  --el-bg-color: #1a1a1a;
+  --el-bg-color-overlay: #1d1e1f;
+  --el-text-color-primary: rgba(255, 255, 255, 0.87);
+  --el-text-color-regular: rgba(255, 255, 255, 0.6);
+  --el-border-color: #414243;
+  --el-border-color-light: #414243;
+  --el-fill-color-light: #262727;
+}
+
+/* Vue Theme (Based on Vue 3 docs) */
+html[data-theme='vue'] {
+  --el-color-primary: #42b883;
+  --el-color-primary-light-3: #7bdca6;
+  --el-color-primary-light-5: #a2e6c1;
+  --el-color-primary-light-7: #c8f0dc;
+  --el-color-primary-light-8: #dbf5e9;
+  --el-color-primary-light-9: #ecf8f3;
+  --el-color-primary-dark-2: #359268;
+
+  --bg-color: #f1f1f1;
+  --aside-bg-color: #213547;
+  --aside-text-color: #ffffff;
+  --header-bg-color: #ffffff;
+  --header-border-color: #e5e7eb;
+  --logo-border-color: #35495e;
+  --menu-hover-bg: #35495e;
+  --menu-active-bg: #42b883;
+  --menu-active-text: #ffffff;
+  --menu-text-color: #d1d5db;
+  --logo-text-color: #42b883;
+  --text-color-primary: #213547;
+  --text-color-regular: #35495e;
+
+  /* Font Family - Vue (Inter-like) */
+  --main-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Bilibili Theme (Pink & Blue) */
+html[data-theme='bilibili'] {
+  --el-color-primary: #fb7299;
+  --el-color-primary-light-3: #fc9cbd;
+  --el-color-primary-light-5: #fdb8d0;
+  --el-color-primary-light-7: #fed4e3;
+  --el-color-primary-light-8: #fee2ec;
+  --el-color-primary-light-9: #fff1f5;
+  --el-color-primary-dark-2: #c95b7a;
+
+  --bg-color: #f4f5f7;
+  --aside-bg-color: #ffffff;
+  --aside-text-color: #18191c;
+  --header-bg-color: #ffffff;
+  --header-border-color: #e3e5e7;
+  --logo-border-color: #e3e5e7;
+  --menu-hover-bg: #f1f2f3;
+  --menu-active-bg: #fb7299;
+  --menu-active-text: #ffffff;
+  --menu-text-color: #61666d;
+  --logo-text-color: #00aeec; /* Bilibili Blue */
+  --text-color-primary: #18191c;
+  --text-color-regular: #9499a0;
+
+  /* Font Family - Bilibili (Playful/Rounded) */
+  --main-font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* Elegant Purple Theme */
+html[data-theme='purple'] {
+  --el-color-primary: #8b5cf6;
+  --el-color-primary-light-3: #ad8df8;
+  --el-color-primary-light-5: #c4aef9;
+  --el-color-primary-light-7: #dbd0fb;
+  --el-color-primary-light-8: #e7e0fc;
+  --el-color-primary-light-9: #f3f0ff;
+  --el-color-primary-dark-2: #6f49c5;
+
+  --bg-color: #f3f4f6;
+  --aside-bg-color: #ffffff;
+  --aside-text-color: #4c1d95;
+  --header-bg-color: #ffffff;
+  --header-border-color: #e5e7eb;
+  --logo-border-color: #ddd6fe;
+  --menu-hover-bg: #f5f3ff;
+  --menu-active-bg: #8b5cf6;
+  --menu-active-text: #ffffff;
+  --menu-text-color: #5b21b6;
+  --logo-text-color: #7c3aed;
+  --text-color-primary: #4c1d95;
+  --text-color-regular: #6d28d9;
+
+  /* Font Family - Purple (Elegant Serif) */
+  --main-font-family: 'Georgia', 'Times New Roman', Times, serif;
+}
+
+/* Global Component Overrides to enforce theme styles */
+
+/* Fix: el-tag should not change color with theme (keep standard blue for primary tags in light themes) */
+html:not([data-theme='dark']) .el-tag--primary,
+html:not([data-theme='dark']) .el-tag:not(.el-tag--success):not(.el-tag--warning):not(.el-tag--danger):not(.el-tag--info) {
+  --el-tag-bg-color: #ecf5ff;
+  --el-tag-border-color: #d9ecff;
+  --el-tag-text-color: #409eff;
+}
+
+html:not([data-theme='dark']) .el-tag--primary .el-tag__close,
+html:not([data-theme='dark']) .el-tag:not(.el-tag--success):not(.el-tag--warning):not(.el-tag--danger):not(.el-tag--info) .el-tag__close {
+  color: #409eff;
+}
+
+/* Fix: el-menu hover and active states should follow theme variables globally */
+.el-menu-item {
+  color: var(--menu-text-color) !important;
+}
+
+.el-menu-item:hover, 
+.el-sub-menu__title:hover {
+  background-color: var(--menu-hover-bg) !important;
+}
+
+.el-menu-item.is-active {
+  background-color: var(--menu-active-bg) !important;
+  color: var(--menu-active-text) !important;
+}
+
+/* Card Styling */
+.el-card {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color-light);
+  color: var(--text-color-primary);
+  transition: all 0.3s;
+}
+
+.el-card__header {
+  border-bottom: 1px solid var(--el-border-color-light);
+  padding: 15px 20px;
+}
+
+/* Theme-specific enhancements */
+
+/* Dark Mode Enhancements */
+html[data-theme='dark'] .el-card {
+  background-color: #1d1e1f !important;
+  border-color: #414243;
+  color: #e5eaf3;
+}
+html[data-theme='dark'] .el-card__header {
+  border-bottom-color: #414243;
+}
+
+/* Bilibili Theme Enhancements */
+html[data-theme='bilibili'] .el-card {
+  border-top: 3px solid var(--el-color-primary);
+  box-shadow: 0 2px 12px 0 rgba(251, 114, 153, 0.1);
+}
+html[data-theme='bilibili'] .el-card__header {
+  background-color: rgba(251, 114, 153, 0.05);
+}
+
+/* Vue Theme Enhancements */
+html[data-theme='vue'] .el-card {
+  border-top: 3px solid var(--el-color-primary);
+}
+html[data-theme='vue'] .el-card__header {
+  background-color: rgba(66, 184, 131, 0.05);
+}
+
+/* Purple Theme Enhancements */
+html[data-theme='purple'] .el-card {
+  border: 1px solid #ddd6fe;
+  box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1);
+}
+html[data-theme='purple'] .el-card__header {
+  background-color: #f5f3ff;
+  color: #4c1d95;
+}
+
+/* Upload Component Enhancements */
+.el-upload-dragger {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  transition: all 0.3s;
+}
+
+.el-upload-dragger:hover {
+  border-color: var(--el-color-primary) !important;
+  background-color: var(--el-color-primary-light-9) !important;
+}
+
+/* Unified Section Title Style */
+.section-title {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--text-color-primary);
+  border-left: 4px solid var(--el-color-primary);
+  padding-left: 10px;
+}
+
+/* Dialog & Drawer Styling to match themes */
+.el-drawer,
+.el-dialog {
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-drawer__header,
+.el-dialog__header {
+  margin-bottom: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--el-border-color-light);
+  color: var(--text-color-primary);
+  background-color: var(--el-bg-color-overlay) !important;
+}
+
+.el-drawer__title,
+.el-dialog__title {
+  color: var(--text-color-primary);
+}
+
+.el-drawer__body,
+.el-dialog__body {
+  background-color: var(--el-bg-color-overlay) !important;
+  color: var(--text-color-primary);
+}
+
+.el-drawer__footer,
+.el-dialog__footer {
+  border-top: 1px solid var(--el-border-color-light);
+  padding-top: 20px;
+}
+
+/* Fix specific input backgrounds in dark mode if needed */
+/* Removed aggressive input styling to let Element Plus handle it */
+html[data-theme='dark'] .el-select-dropdown__item.hover,
+html[data-theme='dark'] .el-select-dropdown__item:hover {
+  background-color: var(--menu-hover-bg);
+}
+
+/* Bilibili Theme Drawer/Dialog Enhancements */
+html[data-theme='bilibili'] .el-drawer__header,
+html[data-theme='bilibili'] .el-dialog__header {
+  background-color: rgba(251, 114, 153, 0.05) !important;
+}
+
+/* Vue Theme Drawer/Dialog Enhancements */
+html[data-theme='vue'] .el-drawer__header,
+html[data-theme='vue'] .el-dialog__header {
+  background-color: rgba(66, 184, 131, 0.05) !important;
+}
+
+/* Purple Theme Drawer/Dialog Enhancements */
+html[data-theme='purple'] .el-drawer__header,
+html[data-theme='purple'] .el-dialog__header {
+  background-color: #f5f3ff !important;
+  color: #4c1d95;
+}
+
+/* Splitpanes Theme Adaptation */
+.splitpanes.default-theme .splitpanes__splitter {
+  background-color: var(--el-border-color-light) !important;
+  border-left: 1px solid var(--el-border-color) !important;
+}
+
+.splitpanes.default-theme .splitpanes__pane {
+  background-color: transparent !important;
+}
+
+.splitpanes.default-theme .splitpanes__splitter:hover {
+  background-color: var(--el-color-primary) !important;
+}
+
+/* Ensure el-tree backgrounds are transparent or match theme */
+.el-tree {
+  background-color: transparent !important;
+  color: var(--text-color-primary) !important;
+}
+
+.el-tree-node__content:hover {
+  background-color: var(--el-fill-color-light) !important;
+}
+
+.el-tree-node:focus > .el-tree-node__content {
+  background-color: var(--el-fill-color-light) !important;
+}

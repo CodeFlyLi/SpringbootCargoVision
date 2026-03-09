@@ -2,6 +2,8 @@ package com.app.springbootcargovision.service.impl;
 
 import com.app.springbootcargovision.mapper.BaseGoodsMapper;
 import com.app.springbootcargovision.model.BaseGoods;
+import com.app.springbootcargovision.mapper.BaseGoodsTypeMapper;
+import com.app.springbootcargovision.model.BaseGoodsType;
 import com.app.springbootcargovision.service.BaseGoodsService;
 import com.app.springbootcargovision.utils.SecurityUtils;
 import com.github.pagehelper.PageHelper;
@@ -19,9 +21,19 @@ import java.util.List;
 public class BaseGoodsServiceImpl implements BaseGoodsService {
 
     private final BaseGoodsMapper baseGoodsMapper;
+    private final BaseGoodsTypeMapper baseGoodsTypeMapper;
 
-    public BaseGoodsServiceImpl(BaseGoodsMapper baseGoodsMapper) {
+    public BaseGoodsServiceImpl(BaseGoodsMapper baseGoodsMapper, BaseGoodsTypeMapper baseGoodsTypeMapper) {
         this.baseGoodsMapper = baseGoodsMapper;
+        this.baseGoodsTypeMapper = baseGoodsTypeMapper;
+    }
+
+    /**
+     * 获取所有货物类型实现
+     */
+    @Override
+    public List<BaseGoodsType> getGoodsTypes() {
+        return baseGoodsTypeMapper.selectAll();
     }
 
     /**

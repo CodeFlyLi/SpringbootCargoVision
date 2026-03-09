@@ -1,6 +1,7 @@
 package com.app.springbootcargovision.controller;
 
 import com.app.springbootcargovision.common.Result;
+import com.app.springbootcargovision.annotation.Log;
 import com.app.springbootcargovision.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,6 +40,7 @@ public class FileController {
      * @throws IOException 文件保存异常
      */
     @Operation(summary = "文件上传", description = "接收文件并保存到服务器本地目录")
+    @Log(module = "文件管理", type = "上传")
     @PostMapping("/upload")
     public Result<Map<String, Object>> upload(
             @Parameter(description = "上传的文件") @RequestParam("file") MultipartFile file) throws IOException {

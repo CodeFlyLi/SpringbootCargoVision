@@ -2,6 +2,7 @@ package com.app.springbootcargovision.model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import lombok.Getter;
 
 import java.util.Collection;
 
@@ -10,6 +11,7 @@ import java.util.Collection;
  * 扩展 UserDetails，包含系统用户信息
  */
 public class LoginUser extends User {
+    @Getter
     private SysUser sysUser;
 
     public LoginUser(SysUser sysUser, Collection<? extends GrantedAuthority> authorities) {
@@ -26,9 +28,5 @@ public class LoginUser extends User {
                 true,
                 authorities);
         this.sysUser = sysUser;
-    }
-
-    public SysUser getSysUser() {
-        return sysUser;
     }
 }

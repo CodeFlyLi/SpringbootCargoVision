@@ -1,102 +1,114 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- 
   检测记录 Mapper XML 文件
   对应表：biz_detections
   功能：提供检测记录的增删改查 SQL 映射
 -->
 <mapper namespace="com.app.springbootcargovision.mapper.BizDetectionMapper">
-    <!-- 
+  <!-- 
       基础结果映射
       将数据库字段映射到 BizDetection 实体类属性
     -->
-    <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.BizDetection">
-        <!-- 主键 ID -->
-        <id column="id" property="id" jdbcType="BIGINT"/>
-        <!-- 检测编号 -->
-        <result column="detection_no" property="detectionNo" jdbcType="VARCHAR"/>
-        <!-- 运输任务 ID -->
-        <result column="transport_id" property="transportId" jdbcType="BIGINT"/>
-        <!-- 操作员 ID -->
-        <result column="operator_id" property="operatorId" jdbcType="BIGINT"/>
-        <!-- 原始图片 URL -->
-        <result column="image_url" property="imageUrl" jdbcType="VARCHAR"/>
-        <!-- 处理后图片 URL -->
-        <result column="processed_image_url" property="processedImageUrl" jdbcType="VARCHAR"/>
-        <!-- 检测时间 -->
-        <result column="detection_time" property="detectionTime" jdbcType="TIMESTAMP"/>
-        <!-- 损伤等级：0-无, 1-轻微, 2-中度, 3-严重 -->
-        <result column="damage_level" property="damageLevel" jdbcType="TINYINT"/>
-        <!-- 损伤面积 -->
-        <result column="damage_area" property="damageArea" jdbcType="DECIMAL"/>
-        <!-- 置信度 -->
-        <result column="confidence" property="confidence" jdbcType="DECIMAL"/>
-        <!-- 损伤类型 -->
-        <result column="damage_type" property="damageType" jdbcType="VARCHAR"/>
-        <!-- 损伤描述 -->
-        <result column="damage_description" property="damageDescription" jdbcType="VARCHAR"/>
-        <!-- 处理建议 -->
-        <result column="suggestion" property="suggestion" jdbcType="VARCHAR"/>
-        <!-- 状态：0-处理中, 1-已完成, 2-异常 -->
-        <result column="status" property="status" jdbcType="TINYINT"/>
-        <!-- 创建时间 -->
-        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
-        <!-- 更新时间 -->
-        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
-        <!-- 关联字段：运输编号 -->
-        <result column="transport_no" property="transportNo" jdbcType="VARCHAR"/>
-        <!-- 关联字段：货物名称 -->
-        <result column="goods_name" property="goodsName" jdbcType="VARCHAR"/>
-        <!-- 关联字段：操作员名称 -->
-        <result column="operator_name" property="operatorName" jdbcType="VARCHAR"/>
-    </resultMap>
+  <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.BizDetection">
+    <!-- 主键 ID -->
+    <id column="id" property="id" jdbcType="BIGINT"/>
+    <!-- 检测编号 -->
+    <result column="detection_no" property="detectionNo" jdbcType="VARCHAR"/>
+    <!-- 运输任务 ID -->
+    <result column="transport_id" property="transportId" jdbcType="BIGINT"/>
+    <!-- 操作员 ID -->
+    <result column="operator_id" property="operatorId" jdbcType="BIGINT"/>
+    <!-- 检测时间 -->
+    <result column="detection_time" property="detectionTime" jdbcType="TIMESTAMP"/>
+    <!-- 损伤等级：0-无, 1-轻微, 2-中度, 3-严重 -->
+    <result column="damage_level" property="damageLevel" jdbcType="TINYINT"/>
+    <!-- 损伤面积 -->
+    <result column="damage_area" property="damageArea" jdbcType="DECIMAL"/>
+    <!-- 置信度 -->
+    <result column="confidence" property="confidence" jdbcType="DECIMAL"/>
+    <!-- 损伤类型 -->
+    <result column="damage_type" property="damageType" jdbcType="VARCHAR"/>
+    <!-- 损伤描述 -->
+    <result column="damage_description" property="damageDescription" jdbcType="VARCHAR"/>
+    <!-- 处理建议 -->
+    <result column="suggestion" property="suggestion" jdbcType="VARCHAR"/>
+    <!-- 状态：0-处理中, 1-已完成, 2-异常 -->
+    <result column="status" property="status" jdbcType="TINYINT"/>
+    <!-- 创建时间 -->
+    <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    <!-- 更新时间 -->
+    <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    <!-- 检测场景 -->
+    <result column="scene_type" property="sceneType" jdbcType="VARCHAR"/>
+    <!-- 物流节点 -->
+    <result column="node_name" property="nodeName" jdbcType="VARCHAR"/>
+    <!-- 关联字段：运输编号 -->
+    <result column="transport_no" property="transportNo" jdbcType="VARCHAR"/>
+    <!-- 关联字段：货物名称 -->
+    <result column="goods_name" property="goodsName" jdbcType="VARCHAR"/>
+    <!-- 关联字段：操作员名称 -->
+    <result column="operator_name" property="operatorName" jdbcType="VARCHAR"/>
+    <!-- 新增业务字段 -->
+    <result column="detection_mode" property="detectionMode" jdbcType="TINYINT"/>
+    <result column="detection_location" property="detectionLocation" jdbcType="VARCHAR"/>
+    <result column="responsibility_subject" property="responsibilitySubject" jdbcType="VARCHAR"/>
+    <result column="is_verified" property="isVerified" jdbcType="TINYINT"/>
+    <result column="original_ai_result" property="originalAiResult" jdbcType="VARCHAR"/>
+    <result column="ai_confidence" property="aiConfidence" jdbcType="DECIMAL"/>
+  </resultMap>
 
-    <!-- 
+  <!-- 
       基础列列表
       包含所有 biz_detections 表的字段，使用别名 d
     -->
-    <sql id="Base_Column_List">
-        d.id, d.detection_no, d.transport_id, d.operator_id, d.image_url, d.processed_image_url,
+  <sql id="Base_Column_List">
+        d.id, d.detection_no, d.transport_id, d.operator_id,
         d.detection_time, d.damage_level, d.damage_area, d.confidence, d.damage_type,
-        d.damage_description, d.suggestion, d.status, d.created_at, d.updated_at
-    </sql>
+        d.damage_description, d.suggestion, d.status, d.created_at, d.updated_at,
+        d.scene_type, d.node_name,
+        d.detection_mode, d.detection_location, d.responsibility_subject, d.is_verified,
+        d.original_ai_result, d.ai_confidence
+  </sql>
 
-    <!-- 
+  <!-- 
       根据 ID 查询检测记录
       @param id 检测记录 ID
       @return 检测记录（包含运输编号、货物名称、操作员名称）
     -->
-    <select id="selectById" resultMap="BaseResultMap">
+  <select id="selectById" resultMap="BaseResultMap">
         select 
-        <include refid="Base_Column_List"/>,
+    <include refid="Base_Column_List"/>
+,
         t.transport_no, g.name as goods_name, u.name as operator_name
         from biz_detections d
         left join biz_transports t on d.transport_id = t.id
         left join base_goods g on t.goods_id = g.id
         left join sys_users u on d.operator_id = u.id
         where d.id = #{id}
-    </select>
+  </select>
 
-    <!-- 
+  <!-- 
       根据 ID 列表查询检测记录
       @param ids 检测记录 ID 列表
       @return 检测记录列表
     -->
-    <select id="selectByIds" resultMap="BaseResultMap">
+  <select id="selectByIds" resultMap="BaseResultMap">
         select 
-        <include refid="Base_Column_List"/>,
+    <include refid="Base_Column_List"/>
+,
         t.transport_no, g.name as goods_name, u.name as operator_name
         from biz_detections d
         left join biz_transports t on d.transport_id = t.id
         left join base_goods g on t.goods_id = g.id
         left join sys_users u on d.operator_id = u.id
         where d.id in
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
-        </foreach>
-    </select>
+    </foreach>
+  </select>
 
-    <!-- 
+  <!-- 
       查询检测记录列表
       支持按检测编号、运输编号、货物名称模糊查询，按损伤等级精确查询
       @param detectionNo 检测编号（可选）
@@ -105,53 +117,89 @@
       @param damageLevel 损伤等级（可选）
       @return 检测记录列表
     -->
-    <select id="selectList" resultMap="BaseResultMap">
+  <select id="selectList" resultMap="BaseResultMap">
         select 
-        <include refid="Base_Column_List"/>,
+    <include refid="Base_Column_List"/>
+,
         t.transport_no, g.name as goods_name, u.name as operator_name
         from biz_detections d
         left join biz_transports t on d.transport_id = t.id
         left join base_goods g on t.goods_id = g.id
         left join sys_users u on d.operator_id = u.id
         where 1=1
-        <if test="detectionNo != null and detectionNo != ''">
+    <if test="detectionNo != null and detectionNo != ''">
             and d.detection_no like concat('%', #{detectionNo}, '%')
-        </if>
-        <if test="transportNo != null and transportNo != ''">
+    </if>
+    <if test="transportNo != null and transportNo != ''">
             and t.transport_no like concat('%', #{transportNo}, '%')
-        </if>
-        <if test="goodsName != null and goodsName != ''">
+    </if>
+    <if test="goodsName != null and goodsName != ''">
             and g.name like concat('%', #{goodsName}, '%')
-        </if>
-        <if test="damageLevel != null">
+    </if>
+    <if test="damageLevel != null">
             and d.damage_level = #{damageLevel}
-        </if>
-        <!-- 数据权限过滤 -->
-        <if test="operatorId != null">
+    </if>
+    <if test="sceneType != null and sceneType != ''">
+            and d.scene_type = #{sceneType}
+    </if>
+    <if test="nodeName != null and nodeName != ''">
+            and d.node_name like concat('%', #{nodeName}, '%')
+    </if>
+    <!-- 数据权限过滤 -->
+    <if test="operatorId != null">
             and d.operator_id = #{operatorId}
-        </if>
-    </select>
+    </if>
+    order by d.created_at desc
+  </select>
 
-    <!-- 
+  <!-- 
       新增检测记录
       @param BizDetection 检测记录对象
     -->
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        insert into biz_detections (detection_no, transport_id, operator_id, image_url, processed_image_url, damage_level, damage_area, confidence, damage_type, damage_description, suggestion, status)
-        values (#{detectionNo}, #{transportId}, #{operatorId}, #{imageUrl}, #{processedImageUrl}, #{damageLevel}, #{damageArea}, #{confidence}, #{damageType}, #{damageDescription}, #{suggestion}, #{status})
-    </insert>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into biz_detections (
+            detection_no, transport_id, operator_id, damage_level, damage_area, confidence, 
+            damage_type, damage_description, suggestion, status, scene_type, node_name,
+            detection_mode, detection_location, responsibility_subject, is_verified, original_ai_result, ai_confidence
+        )
+        values (
+            #{detectionNo}, #{transportId}, #{operatorId}, #{damageLevel}, #{damageArea}, #{confidence}, 
+            #{damageType}, #{damageDescription}, #{suggestion}, #{status}, #{sceneType}, #{nodeName},
+            #{detectionMode}, #{detectionLocation}, #{responsibilitySubject}, #{isVerified}, #{originalAiResult}, #{aiConfidence}
+        )
+  </insert>
 
-    <!-- 
+  <!-- 
       更新检测记录
       动态更新不为 null 的字段
       @param BizDetection 检测记录对象
     -->
-    <update id="update">
+  <update id="update">
         update biz_detections
-        <set>
-            <if test="status != null">status = #{status},</if>
-            <if test="damageLevel != null">damage_level = #{damageLevel},</if>
-        </set>
+    <set>
+      <if test="status != null">status = #{status},</if>
+      <if test="damageLevel != null">damage_level = #{damageLevel},</if>
+      <if test="damageType != null">damage_type = #{damageType},</if>
+      <if test="damageDescription != null">damage_description = #{damageDescription},</if>
+      <if test="suggestion != null">suggestion = #{suggestion},</if>
+      <if test="damageArea != null">damage_area = #{damageArea},</if>
+      <if test="confidence != null">confidence = #{confidence},</if>
+      <if test="isVerified != null">is_verified = #{isVerified},</if>
+      <if test="responsibilitySubject != null">responsibility_subject = #{responsibilitySubject},</if>
+      <if test="detectionLocation != null">detection_location = #{detectionLocation},</if>
+      <if test="sceneType != null">scene_type = #{sceneType},</if>
+      <if test="nodeName != null">node_name = #{nodeName},</if>
+      <if test="detectionMode != null">detection_mode = #{detectionMode},</if>
+    </set>
         where id = #{id}
-    </update>
+  </update>
+
+  <!-- 
+      根据 ID 删除检测记录
+      @param id 检测记录 ID
+    -->
+  <delete id="deleteById">
+        delete from biz_detections
+        where id = #{id}
+  </delete>
 </mapper>

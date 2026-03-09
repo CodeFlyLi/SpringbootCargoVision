@@ -49,7 +49,6 @@
         left join sys_roles r on ur.role_id = r.id
         where u.id = #{id} and u.is_deleted = 0
     </select>
-
     <!-- 根据用户名查询用户 (包括已逻辑删除的) -->
     <select id="selectByUsername" resultMap="BaseResultMap">
         select
@@ -60,7 +59,7 @@
         left join sys_user_roles ur on u.id = ur.user_id
         left join sys_roles r on ur.role_id = r.id
         where u.username = #{username}
-                        <!-- 移除 is_deleted = 0 条件，确保即使是已删除的用户，用户名也不能重复 -->
+                                <!-- 移除 is_deleted = 0 条件，确保即使是已删除的用户，用户名也不能重复 -->
     </select>
 
     <!-- 根据身份证号查询用户 (包括已逻辑删除的) -->
@@ -73,7 +72,7 @@
         left join sys_user_roles ur on u.id = ur.user_id
         left join sys_roles r on ur.role_id = r.id
         where u.id_card = #{idCard}
-                        <!-- 移除 is_deleted = 0 条件，确保即使是已删除的用户，身份证号也不能重复 -->
+                                <!-- 移除 is_deleted = 0 条件，确保即使是已删除的用户，身份证号也不能重复 -->
     </select>
 
     <!-- 根据用户名或身份证号查询用户（用于登录） -->

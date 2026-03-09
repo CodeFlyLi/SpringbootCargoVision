@@ -46,4 +46,11 @@ public interface BizDetectionMapper {
      * @return 影响行数
      */
     int update(BizDetection detection);
+
+    /**
+     * 删除检测记录
+     * @param id 检测记录 ID
+     * @return 影响行数
+     */
+    int deleteById(Long id);
 }

@@ -65,6 +65,7 @@
                 and r.role_code like concat('%', #{code}, '%')
             </if>
         </where>
+        order by r.created_at desc
     </select>
 
     <!-- 新增角色 -->

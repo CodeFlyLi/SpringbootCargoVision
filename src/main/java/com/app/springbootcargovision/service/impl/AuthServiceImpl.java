@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -47,15 +48,10 @@ public class AuthServiceImpl implements AuthService {
         // 1. 先查询用户状态，进行防御性检查 (支持用户名或身份证号)
         SysUser sysUser = sysUserMapper.selectLoginUser(username);
         if (sysUser == null) {
-            System.out.println("DEBUG: Login failed. User not found: " + username);
             throw new RuntimeException("用户不存在");
         }
 
-        System.out.println("DEBUG: Login check - User ID: " + sysUser.getId() + ", Username: " + sysUser.getUsername()
-                + ", Status: " + sysUser.getStatus());
-
         if (sysUser.getStatus() != null && sysUser.getStatus() != 1) {
-            System.out.println("DEBUG: Login blocked. User is disabled.");
             throw new org.springframework.security.authentication.DisabledException("账号已被禁用");
         }
 
@@ -94,16 +90,11 @@ public class AuthServiceImpl implements AuthService {
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             SysUser user = sysUserMapper.selectByUsername(userDetails.getUsername());
             if (user != null) {
-                java.util.List<SysPermission> permissions = sysPermissionMapper.selectByUserId(user.getId());
-                java.util.List<String> permissionCodes = permissions.stream()
+                List<SysPermission> permissions = sysPermissionMapper.selectByUserId(user.getId());
+                List<String> permissionCodes = permissions.stream()
                         .map(SysPermission::getCode)
                         .filter(code -> code != null && !code.isEmpty())
                         .collect(Collectors.toList());
-
-                System.out.println("DEBUG: getCurrentUser for " + user.getUsername() + " (ID: " + user.getId() + ")");
-                System.out.println("DEBUG: Roles: " + (user.getRoles() != null ? user.getRoles().size() : 0));
-                System.out.println("DEBUG: Permissions found: " + permissionCodes.size());
-                System.out.println("DEBUG: Permission codes: " + permissionCodes);
 
                 user.setPermissions(permissionCodes);
             }

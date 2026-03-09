@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 系统角色实体类
@@ -38,7 +39,7 @@ public class SysRole {
 
     // --- 非数据库字段 ---
     @Schema(description = "角色拥有的权限列表", accessMode = Schema.AccessMode.READ_ONLY)
-    private java.util.List<SysPermission> permissions;
+    private List<SysPermission> permissions;
 
     // --- 兼容性字段 ---
     @Schema(description = "角色名称 (兼容前端)", accessMode = Schema.AccessMode.READ_ONLY)

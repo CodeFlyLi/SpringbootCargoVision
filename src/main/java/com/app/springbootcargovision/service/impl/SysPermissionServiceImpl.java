@@ -101,6 +101,18 @@ public class SysPermissionServiceImpl implements SysPermissionService {
     }
 
     /**
+     * 根据用户ID获取该用户的权限树
+     * 
+     * @param userId 用户ID
+     * @return 权限树列表
+     */
+    @Override
+    public List<SysPermission> getUserPermissionTree(Long userId) {
+        List<SysPermission> userPermissions = sysPermissionMapper.selectByUserId(userId);
+        return buildTree(userPermissions);
+    }
+
+    /**
      * 根据角色ID获取该角色拥有的权限列表
      * 
      * @param roleId 角色ID

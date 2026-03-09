@@ -43,6 +43,14 @@ public interface SysPermissionService {
     List<SysPermission> getPermissionTree();
 
     /**
+     * 根据用户ID获取该用户的权限树
+     * 
+     * @param userId 用户ID
+     * @return 权限树列表
+     */
+    List<SysPermission> getUserPermissionTree(Long userId);
+
+    /**
      * 根据角色ID获取权限列表
      */
     List<SysPermission> getPermissionsByRoleId(Long roleId);

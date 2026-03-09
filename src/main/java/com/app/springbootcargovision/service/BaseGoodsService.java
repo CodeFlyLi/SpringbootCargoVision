@@ -3,20 +3,30 @@ package com.app.springbootcargovision.service;
 import com.app.springbootcargovision.model.BaseGoods;
 import com.github.pagehelper.PageInfo;
 
+import com.app.springbootcargovision.model.BaseGoodsType;
+import java.util.List;
+
 /**
  * 基础货物信息服务接口
  * 处理货物信息的增删改查业务逻辑
  */
 public interface BaseGoodsService {
-    
+
+    /**
+     * 获取所有货物类型
+     * 
+     * @return 货物类型列表
+     */
+    List<BaseGoodsType> getGoodsTypes();
+
     /**
      * 分页查询货物列表
      * 
-     * @param page 页码
-     * @param size 每页数量
+     * @param page    页码
+     * @param size    每页数量
      * @param goodsNo 货物编号（可选，模糊查询）
-     * @param name 货物名称（可选，模糊查询）
-     * @param typeId 货物类型ID（可选，精确匹配）
+     * @param name    货物名称（可选，模糊查询）
+     * @param typeId  货物类型ID（可选，精确匹配）
      * @return 包含货物列表的分页信息对象
      */
     PageInfo<BaseGoods> getGoodsList(Integer page, Integer size, String goodsNo, String name, Long typeId);

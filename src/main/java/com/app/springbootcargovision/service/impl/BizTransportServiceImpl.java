@@ -11,6 +11,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -34,21 +35,14 @@ public class BizTransportServiceImpl implements BizTransportService {
      */
     @Override
     public PageInfo<BizTransport> getTransportList(Integer page, Integer size, String transportNo, String goodsName,
-            Integer status) {
-        // 设置分页参数
+            Integer status, String customerName) {
         PageHelper.startPage(page, size);
-
-        // 构建查询条件
         BizTransport query = new BizTransport();
         query.setTransportNo(transportNo);
         query.setGoodsName(goodsName);
         query.setStatus(status);
-
-        // 执行查询
-        List<BizTransport> list = bizTransportMapper.selectList(query);
-
-        // 返回分页结果
-        return new PageInfo<>(list);
+        query.setCustomerName(customerName);
+        return new PageInfo<>(bizTransportMapper.selectList(query));
     }
 
     @Override
@@ -132,7 +126,7 @@ public class BizTransportServiceImpl implements BizTransportService {
         }
 
         transport.setStatus(1); // 运输中
-        transport.setStartTime(java.time.LocalDateTime.now());
+        transport.setStartTime(LocalDateTime.now());
         bizTransportMapper.update(transport);
     }
 
@@ -149,7 +143,7 @@ public class BizTransportServiceImpl implements BizTransportService {
         }
 
         transport.setStatus(2); // 已送达
-        transport.setEndTime(java.time.LocalDateTime.now());
+        transport.setEndTime(LocalDateTime.now());
         bizTransportMapper.update(transport);
     }
 

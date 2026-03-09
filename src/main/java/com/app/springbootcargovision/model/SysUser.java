@@ -1,23 +1,22 @@
 package com.app.springbootcargovision.model;
 
-import com.app.springbootcargovision.utils.DataMaskingSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.experimental.Accessors;
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
- * 用户表
+ * 系统用户实体类
  */
-@Data
 @Schema(description = "系统用户")
-public class SysUser {
+public class SysUser implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Schema(description = "主键 ID")
     private Long id;
 
@@ -27,16 +26,7 @@ public class SysUser {
     private String username;
 
     @Schema(description = "身份证号 (登录账号)")
-    @JsonSerialize(using = DataMaskingSerializer.IdCardMaskingSerializer.class)
     private String idCard;
-
-    /**
-     * 标准 Setter: 身份证号
-     * 处理空字符串，将其转换为 null
-     */
-    public void setIdCard(String idCard) {
-        this.idCard = (idCard != null && idCard.trim().isEmpty()) ? null : idCard;
-    }
 
     @Schema(description = "密码 (加密存储)", accessMode = Schema.AccessMode.WRITE_ONLY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -54,16 +44,7 @@ public class SysUser {
     private String email;
 
     @Schema(description = "手机号码")
-    @JsonSerialize(using = DataMaskingSerializer.PhoneMaskingSerializer.class)
     private String phone;
-
-    /**
-     * 标准 Setter: 手机号码
-     * 处理空字符串，将其转换为 null
-     */
-    public void setPhone(String phone) {
-        this.phone = (phone != null && phone.trim().isEmpty()) ? null : phone;
-    }
 
     @Schema(description = "状态: 1-正常, 0-禁用")
     private Integer status;
@@ -86,17 +67,200 @@ public class SysUser {
     @Schema(description = "更新时间", accessMode = Schema.AccessMode.READ_ONLY)
     private LocalDateTime updatedAt;
 
-    // --- 非数据库字段 (业务展示用) ---
     @Schema(description = "搜索条件: 角色ID", accessMode = Schema.AccessMode.WRITE_ONLY)
     private Long roleId;
 
     @Schema(description = "用户角色列表", accessMode = Schema.AccessMode.READ_ONLY)
-    // 标记为只读，避免默认反序列化器尝试将字符串强转为 List 导致报错
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private java.util.List<SysRole> roles;
+    private List<SysRole> roles;
 
-    // --- 扩展字段 ---
-    @Schema(description = "角色名称字符串 (兼容前端)", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "用户权限列表", accessMode = Schema.AccessMode.READ_ONLY)
+    private List<String> permissions;
+
+    // --- Getter 和 Setter 方法 ---
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getIdCard() {
+        return idCard;
+    }
+
+    public void setIdCard(String idCard) {
+        this.idCard = (idCard != null && idCard.trim().isEmpty()) ? null : idCard;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = (phone != null && phone.trim().isEmpty()) ? null : phone;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    /** 兼容性 Setter：处理前端传来的字符串状态 */
+    public void setStatus(String status) {
+        if ("正常".equals(status))
+            this.status = 1;
+        else if ("禁用".equals(status))
+            this.status = 0;
+        else {
+            try {
+                this.status = Integer.parseInt(status);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    public LocalDateTime getLastPasswordResetTime() {
+        return lastPasswordResetTime;
+    }
+
+    public void setLastPasswordResetTime(LocalDateTime lastPasswordResetTime) {
+        this.lastPasswordResetTime = lastPasswordResetTime;
+    }
+
+    public LocalDateTime getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(LocalDateTime lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+    }
+
+    public String getLastLoginIp() {
+        return lastLoginIp;
+    }
+
+    public void setLastLoginIp(String lastLoginIp) {
+        this.lastLoginIp = lastLoginIp;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
+
+    /** 兼容性 Setter：处理前端传来的字符串角色ID */
+    public void setRoleId(String roleId) {
+        try {
+            this.roleId = Long.parseLong(roleId);
+        } catch (Exception e) {
+        }
+    }
+
+    public List<SysRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<SysRole> roles) {
+        this.roles = roles;
+    }
+
+    /** 优化后的导包注解：处理复杂的反序列化逻辑 */
+    @JsonSetter("roles")
+    public void setRolesFromJson(Object roles) {
+        if (roles instanceof String) {
+            try {
+                this.roleId = Long.parseLong((String) roles);
+            } catch (Exception e) {
+            }
+        } else if (roles instanceof Number) {
+            this.roleId = ((Number) roles).longValue();
+        } else if (roles instanceof List) {
+            this.roles = (List<SysRole>) roles;
+        }
+    }
+
+    public List<String> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<String> permissions) {
+        this.permissions = permissions;
+    }
+
+    // --- 业务展示方法 ---
     public String getRoleName() {
         if (roles != null && !roles.isEmpty()) {
             StringBuilder sb = new StringBuilder();
@@ -109,80 +273,4 @@ public class SysUser {
         }
         return null;
     }
-
-    @Schema(description = "状态名称 (兼容前端)", accessMode = Schema.AccessMode.READ_ONLY)
-    public String getStatusName() {
-        return status != null && status == 1 ? "正常" : "禁用";
-    }
-
-    // --- 兼容性 Setters (处理前端传递的 String 类型数据) ---
-
-    /**
-     * 标准 Setter: 状态
-     * 手动添加以避免 Lombok 因重载而跳过生成
-     */
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    /**
-     * 兼容性 Setter: 状态 (处理字符串)
-     */
-    public void setStatus(String status) {
-        if ("正常".equals(status)) {
-            this.status = 1;
-        } else if ("禁用".equals(status)) {
-            this.status = 0;
-        } else {
-            try {
-                this.status = Integer.parseInt(status);
-            } catch (NumberFormatException e) {
-                // 忽略非数字且非特定关键词的字符串
-            }
-        }
-    }
-
-    /**
-     * 标准 Setter: 角色ID
-     * 手动添加以避免 Lombok 因重载而跳过生成
-     */
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
-    }
-
-    /**
-     * 兼容性 Setter: 角色ID (处理字符串)
-     */
-    public void setRoleId(String roleId) {
-        try {
-            this.roleId = Long.parseLong(roleId);
-        } catch (NumberFormatException e) {
-            // 忽略非数字字符串
-        }
-    }
-
-    /**
-     * 自定义反序列化逻辑：处理前端可能传递的异常格式 roles 数据
-     * 正常情况下前端应传 roleId，但如果传了 roles="1" 这种字符串，在此兼容
-     */
-    @com.fasterxml.jackson.annotation.JsonSetter("roles")
-    public void setRolesFromJson(Object roles) {
-        if (roles instanceof String) {
-            try {
-                // 如果前端把 ID 放在 roles 字段里传过来（字符串格式）
-                this.roleId = Long.parseLong((String) roles);
-            } catch (NumberFormatException e) {
-                // 忽略非数字
-            }
-        } else if (roles instanceof Number) {
-            // 如果前端把 ID 放在 roles 字段里传过来（数字格式）
-            this.roleId = ((Number) roles).longValue();
-        } else if (roles instanceof java.util.List) {
-            // 正常的 List<SysRole> 格式（如果有的话），虽然通常用于展示
-            this.roles = (java.util.List<SysRole>) roles;
-        }
-    }
-
-    @Schema(description = "用户权限列表", accessMode = Schema.AccessMode.READ_ONLY)
-    private java.util.List<String> permissions;
 }

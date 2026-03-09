@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.springbootcargovision.mapper.BizDetectionImageMapper">
+
+    <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.BizDetectionImage">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="detection_id" property="detectionId" jdbcType="BIGINT"/>
+        <result column="original_url" property="originalUrl" jdbcType="VARCHAR"/>
+        <result column="processed_url" property="processedUrl" jdbcType="VARCHAR"/>
+        <result column="damage_level" property="damageLevel" jdbcType="INTEGER"/>
+        <result column="damage_type" property="damageType" jdbcType="VARCHAR"/>
+        <result column="confidence" property="confidence" jdbcType="DECIMAL"/>
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <result column="bounding_boxes" property="boundingBoxes" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, detection_id, original_url, processed_url, damage_level, damage_type, confidence, sort_order, bounding_boxes, created_at
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into biz_detection_images (detection_id, original_url, processed_url, damage_level, damage_type, confidence, sort_order, bounding_boxes)
+        values (#{detectionId}, #{originalUrl}, #{processedUrl}, #{damageLevel}, #{damageType}, #{confidence}, #{sortOrder}, #{boundingBoxes})
+    </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into biz_detection_images (detection_id, original_url, processed_url, damage_level, damage_type, confidence, sort_order, bounding_boxes, created_at)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.detectionId}, #{item.originalUrl}, #{item.processedUrl}, #{item.damageLevel}, #{item.damageType}, #{item.confidence}, #{item.sortOrder}, #{item.boundingBoxes}, #{item.createdAt})
+        </foreach>
+    </insert>
+
+    <select id="selectByDetectionId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from biz_detection_images
+        where detection_id = #{detectionId}
+        order by sort_order asc, id asc
+    </select>
+
+    <delete id="deleteByDetectionId">
+        delete from biz_detection_images
+        where detection_id = #{detectionId}
+    </delete>
+
+    <update id="update">
+        update biz_detection_images
+        <set>
+            <if test="detectionId != null">detection_id = #{detectionId},</if>
+            <if test="originalUrl != null">original_url = #{originalUrl},</if>
+            <if test="processedUrl != null">processed_url = #{processedUrl},</if>
+            <if test="damageLevel != null">damage_level = #{damageLevel},</if>
+            <if test="damageType != null">damage_type = #{damageType},</if>
+            <if test="confidence != null">confidence = #{confidence},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="boundingBoxes != null">bounding_boxes = #{boundingBoxes},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from biz_detection_images
+        where id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from biz_detection_images
+        where 1=1
+    <if test="detectionId != null">
+            and detection_id = #{detectionId}
+    </if>
+    <if test="damageLevel != null">
+            and damage_level = #{damageLevel}
+    </if>
+    <if test="damageType != null and damageType != ''">
+            and damage_type = #{damageType}
+    </if>
+        order by sort_order asc, id asc
+</select>
+
+</mapper>

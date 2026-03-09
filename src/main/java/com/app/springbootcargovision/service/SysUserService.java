@@ -3,6 +3,8 @@ package com.app.springbootcargovision.service;
 import com.app.springbootcargovision.model.SysUser;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
+
 /**
  * 系统用户服务接口
  * 处理用户管理、状态变更、密码重置等业务逻辑
@@ -76,7 +78,7 @@ public interface SysUserService {
      * @param userId  用户ID
      * @param roleIds 角色ID列表
      */
-    void assignUserRoles(Long userId, java.util.List<Long> roleIds);
+    void assignUserRoles(Long userId, List<Long> roleIds);
 
     /**
      * 重置用户密码

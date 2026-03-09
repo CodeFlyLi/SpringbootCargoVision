@@ -2,6 +2,7 @@ package com.app.springbootcargovision.controller;
 
 import com.app.springbootcargovision.model.SysPermission;
 import com.app.springbootcargovision.service.SysPermissionService;
+import com.app.springbootcargovision.annotation.Log;
 import com.app.springbootcargovision.common.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -84,6 +85,7 @@ public class SysPermissionController {
      * @return 成功提示
      */
     @Operation(summary = "删除权限", description = "根据ID删除权限信息")
+    @Log(module = "权限管理", type = "删除")
     @DeleteMapping("/{id}")
     public Result<Void> deletePermission(@Parameter(description = "权限ID") @PathVariable Long id) {
         sysPermissionService.deletePermission(id);

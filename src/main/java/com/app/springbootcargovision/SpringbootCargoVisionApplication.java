@@ -3,11 +3,13 @@ package com.app.springbootcargovision;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * 应用入口类
  * 负责启动 Spring Boot 应用
  */
+@EnableAsync
 @SpringBootApplication
 @MapperScan("com.app.springbootcargovision.mapper")
 public class SpringbootCargoVisionApplication {

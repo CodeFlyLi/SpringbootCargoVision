@@ -17,9 +17,10 @@ public interface BizTransportService {
      * @param transportNo 运输单号（可选，模糊查询）
      * @param goodsName 货物名称（可选，模糊查询）
      * @param status 运输状态（可选，精确匹配）
+     * @param customerName 客户名称（可选，模糊查询）
      * @return 包含运输记录列表的分页信息对象
      */
-    PageInfo<BizTransport> getTransportList(Integer page, Integer size, String transportNo, String goodsName, Integer status);
+    PageInfo<BizTransport> getTransportList(Integer page, Integer size, String transportNo, String goodsName, Integer status, String customerName);
 
     /**
      * 根据ID获取运输记录详情

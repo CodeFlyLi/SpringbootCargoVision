@@ -1,13 +1,18 @@
 package com.app.springbootcargovision.controller;
 
 import com.app.springbootcargovision.common.Result;
+import com.app.springbootcargovision.annotation.Log;
 import com.app.springbootcargovision.model.SysUser;
 import com.app.springbootcargovision.service.AuthService;
+import com.app.springbootcargovision.service.SysUserService;
+import com.app.springbootcargovision.model.SysPermission;
+import com.app.springbootcargovision.service.SysPermissionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,12 +25,15 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
-    private final com.app.springbootcargovision.service.SysUserService sysUserService;
+    private final SysUserService sysUserService;
+    private final SysPermissionService sysPermissionService;
 
     public AuthController(AuthService authService,
-            com.app.springbootcargovision.service.SysUserService sysUserService) {
+            SysUserService sysUserService,
+            SysPermissionService sysPermissionService) {
         this.authService = authService;
         this.sysUserService = sysUserService;
+        this.sysPermissionService = sysPermissionService;
     }
 
     /**
@@ -36,6 +44,7 @@ public class AuthController {
      * @return 包含 token 和 userInfo 的结果对象
      */
     @Operation(summary = "用户登录", description = "接收用户名和密码，验证成功后返回 JWT Token 和用户信息")
+    @Log(module = "认证管理", type = "登录")
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> loginRequest) {
         String username = loginRequest.get("username");
@@ -66,11 +75,26 @@ public class AuthController {
     }
 
     /**
+     * 获取动态路由接口
+     * 
+     * @return 路由树
+     */
+    @Operation(summary = "获取动态路由", description = "获取系统菜单路由树")
+    @GetMapping("/routers")
+    public Result<List<SysPermission>> getRouters() {
+        // 获取当前用户ID
+        Long userId = authService.getCurrentUser().getId();
+        // 根据用户ID获取权限树
+        return Result.success(sysPermissionService.getUserPermissionTree(userId));
+    }
+
+    /**
      * 用户登出接口
      * 
      * @return 成功提示信息
      */
     @Operation(summary = "用户登出", description = "客户端侧清除 Token，服务端无需特殊处理")
+    @Log(module = "认证管理", type = "登出")
     @PostMapping("/logout")
     public Result<String> logout() {
         // 客户端侧清除 Token，服务端无需特殊处理（JWT 无状态）

@@ -1,0 +1,139 @@
+/* PC Layout Styles for Management Pages */
+/* 
+ * 统一管理页面的布局样式：
+ * 1. 容器占满高度
+ * 2. 头部/搜索栏固定
+ * 3. 表格区域占据剩余空间并支持内部滚动
+ */
+
+@media (min-width: 768px) {
+  .management-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .management-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: none;
+  }
+
+  /* 
+   * 使得 el-card 的 body 部分成为 flex 容器，
+   * 从而可以让内部的 el-table 撑开并滚动
+   */
+  .management-card .el-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 20px;
+  }
+
+  .search-bar-container {
+    margin-bottom: 15px;
+    flex-shrink: 0;
+  }
+
+  /* 
+   * 关键样式：强制表格在 Flex 容器中自适应高度
+   * 1. flex: 1 让表格占据剩余空间
+   * 2. height: 0 !important 覆盖内联的 height="100%"，防止父容器溢出
+   *    (Element Plus 表格会通过 ResizeObserver 自动获取实际渲染高度)
+   */
+  .management-card .el-card__body > .el-table {
+    flex: 1;
+    height: 0 !important;
+    min-height: 0;
+  }
+}
+
+/* Common Management Page Styles */
+
+/* Header */
+.card-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.mobile-search-bar {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.mobile-main-search {
+  flex: 1;
+}
+
+/* Pagination */
+.pagination {
+  padding: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.mobile-pagination .el-pagination {
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .pagination {
+    justify-content: center;
+  }
+}
+
+/* Drawer */
+.drawer-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+}
+
+/* Mobile Filter Drawer Body Padding */
+.mobile-filter-drawer .el-drawer__body {
+  padding: 20px !important;
+}
+
+/* Common Utility Classes for Inputs */
+.w-full {
+  width: 100%;
+}
+.w-120 {
+  width: 120px;
+}
+.w-150 {
+  width: 150px;
+}
+.w-180 {
+  width: 180px;
+}
+.w-200 {
+  width: 200px;
+}
+.w-260 {
+  width: 260px;
+}

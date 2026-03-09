@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.springbootcargovision.mapper.SysConfigMapper">
+
+    <resultMap id="BaseResultMap" type="com.app.springbootcargovision.model.SysConfig">
+        <id column="config_key" property="configKey" jdbcType="VARCHAR"/>
+        <result column="config_value" property="configValue" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        config_key, config_value, description, created_at, updated_at
+    </sql>
+
+    <select id="selectByKey" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_configs
+        where config_key = #{configKey}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from sys_configs
+    </select>
+
+    <update id="update">
+        update sys_configs
+        set config_value = #{configValue},
+            updated_at = NOW()
+        where config_key = #{configKey}
+    </update>
+
+    <insert id="insert">
+        insert into sys_configs (config_key, config_value, description, created_at, updated_at)
+        values (#{configKey}, #{configValue}, #{description}, NOW(), NOW())
+    </insert>
+
+</mapper>

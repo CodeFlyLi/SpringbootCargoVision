@@ -17,6 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -90,7 +91,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Date issuedAt = jwtUtils.extractIssuedAt(jwt);
                     // 如果 Token 签发时间早于密码重置时间（容忍1秒误差），则认为无效
                     if (issuedAt != null && issuedAt
-                            .before(java.sql.Timestamp.valueOf(sysUser.getLastPasswordResetTime().minusSeconds(1)))) {
+                            .before(Timestamp.valueOf(sysUser.getLastPasswordResetTime().minusSeconds(1)))) {
                         isPasswordValid = false;
                         logger.warn("JWT Token 已失效: 密码已重置 (User: " + username + ")");
                     }
@@ -107,7 +108,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
                 if (!isEnabled) {
-                    System.out.println("DEBUG: JWT Filter blocked disabled user: " + username);
                     // 账号被禁用，直接返回 403 错误，不继续执行过滤器链
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.setContentType("application/json;charset=UTF-8");

@@ -1,5 +1,6 @@
 package com.app.springbootcargovision.controller;
 
+import com.app.springbootcargovision.annotation.Log;
 import com.app.springbootcargovision.common.Result;
 import com.app.springbootcargovision.model.SysUser;
 import com.app.springbootcargovision.service.SysUserService;
@@ -41,8 +42,9 @@ public class SysUserController {
      * @return 用户列表分页结果
      */
     @Operation(summary = "分页查询用户列表", description = "根据条件分页查询用户信息")
+    @Log(module = "用户管理", type = "查询")
     @GetMapping
-    @PreAuthorize("hasAuthority('sys:user:list')")
+    @PreAuthorize("hasAuthority('sys:user:query')")
     public Result<PageInfo<SysUser>> getUserList(
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer page,
             @Parameter(description = "每页数量") @RequestParam(defaultValue = "10") Integer size,
@@ -60,6 +62,7 @@ public class SysUserController {
      * @return 创建成功的用户对象（包含生成的ID）
      */
     @Operation(summary = "创建用户", description = "新增用户信息")
+    @Log(module = "用户管理", type = "新增")
     @PostMapping
     @PreAuthorize("hasAuthority('sys:user:add')")
     public Result<SysUser> createUser(@Valid @RequestBody SysUser sysUser) {
@@ -75,6 +78,7 @@ public class SysUserController {
      * @return 成功提示信息
      */
     @Operation(summary = "更新用户信息", description = "更新已存在的用户信息")
+    @Log(module = "用户管理", type = "修改")
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('sys:user:edit')")
     public Result<String> updateUser(@Parameter(description = "用户ID") @PathVariable Long id,
@@ -93,12 +97,12 @@ public class SysUserController {
      * @return 成功提示信息
      */
     @Operation(summary = "更新用户状态", description = "启用或禁用用户")
+    @Log(module = "用户管理", type = "修改")
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAuthority('sys:user:edit')")
     public Result<String> updateUserStatus(@Parameter(description = "用户ID") @PathVariable Long id,
             @RequestBody Map<String, Integer> body) {
         Integer status = body.get("status");
-        System.out.println("DEBUG: Request to update user " + id + " status to " + status);
         if (status == null) {
             return Result.error("状态不能为空");
         }
@@ -114,6 +118,7 @@ public class SysUserController {
      * @return 成功提示信息
      */
     @Operation(summary = "重置用户密码", description = "重置用户密码，若未提供密码则使用系统默认密码")
+    @Log(module = "用户管理", type = "修改")
     @PatchMapping("/{id}/reset-password")
     @PreAuthorize("hasAuthority('sys:user:edit')")
     public Result<String> resetPassword(@Parameter(description = "用户ID") @PathVariable Long id,
@@ -131,6 +136,7 @@ public class SysUserController {
      * @return 成功提示信息
      */
     @Operation(summary = "分配用户角色", description = "为用户分配一个或多个角色")
+    @Log(module = "用户管理", type = "授权")
     @PostMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('sys:user:edit')")
     public Result<String> assignUserRoles(@Parameter(description = "用户ID") @PathVariable Long id,
@@ -146,6 +152,7 @@ public class SysUserController {
      * @return 成功提示信息
      */
     @Operation(summary = "删除用户", description = "根据ID删除用户信息")
+    @Log(module = "用户管理", type = "删除")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('sys:user:delete')")
     public Result<String> deleteUser(@Parameter(description = "用户ID") @PathVariable Long id) {

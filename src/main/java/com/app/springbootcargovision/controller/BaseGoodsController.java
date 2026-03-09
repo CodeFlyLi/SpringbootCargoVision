@@ -1,5 +1,6 @@
 package com.app.springbootcargovision.controller;
 
+import com.app.springbootcargovision.annotation.Log;
 import com.app.springbootcargovision.common.Result;
 import com.app.springbootcargovision.model.BaseGoods;
 import com.app.springbootcargovision.service.BaseGoodsService;
@@ -9,6 +10,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import com.app.springbootcargovision.model.BaseGoodsType;
+import java.util.List;
 
 /**
  * 基础货物信息控制器
@@ -26,6 +30,17 @@ public class BaseGoodsController {
     }
 
     /**
+     * 获取所有货物类型接口
+     * 
+     * @return 货物类型列表
+     */
+    @Operation(summary = "获取货物类型", description = "获取所有货物类型列表")
+    @GetMapping("/types")
+    public Result<List<BaseGoodsType>> getGoodsTypes() {
+        return Result.success(baseGoodsService.getGoodsTypes());
+    }
+
+    /**
      * 分页查询货物列表接口
      * 
      * @param page    页码（默认1）
@@ -36,6 +51,7 @@ public class BaseGoodsController {
      * @return 货物列表分页结果
      */
     @Operation(summary = "分页查询货物列表", description = "根据条件分页查询货物信息")
+    @Log(module = "货物管理", type = "查询")
     @GetMapping
     public Result<PageInfo<BaseGoods>> getGoodsList(
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer page,
@@ -65,6 +81,7 @@ public class BaseGoodsController {
      * @return 成功提示信息
      */
     @Operation(summary = "创建货物", description = "新增货物信息")
+    @Log(module = "货物管理", type = "新增")
     @PostMapping
     public Result<String> createGoods(@Valid @RequestBody BaseGoods goods) {
         baseGoodsService.createGoods(goods);
@@ -79,6 +96,7 @@ public class BaseGoodsController {
      * @return 成功提示信息
      */
     @Operation(summary = "更新货物", description = "更新已存在的货物信息")
+    @Log(module = "货物管理", type = "修改")
     @PutMapping("/{id}")
     public Result<String> updateGoods(@Parameter(description = "货物ID") @PathVariable Long id,
             @Valid @RequestBody BaseGoods goods) {
@@ -94,6 +112,7 @@ public class BaseGoodsController {
      * @return 成功提示信息
      */
     @Operation(summary = "删除货物", description = "根据ID删除货物信息")
+    @Log(module = "货物管理", type = "删除")
     @DeleteMapping("/{id}")
     public Result<String> deleteGoods(@Parameter(description = "货物ID") @PathVariable Long id) {
         baseGoodsService.deleteGoods(id);

@@ -1,5 +1,6 @@
 package com.app.springbootcargovision.controller;
 
+import com.app.springbootcargovision.annotation.Log;
 import com.app.springbootcargovision.common.Result;
 import com.app.springbootcargovision.model.SysRole;
 import com.app.springbootcargovision.service.SysRoleService;
@@ -37,6 +38,7 @@ public class SysRoleController {
      * @return 角色列表
      */
     @Operation(summary = "获取角色列表", description = "获取角色列表，支持根据角色名或编码模糊查询")
+    @Log(module = "角色管理", type = "查询")
     @GetMapping
     public Result<PageInfo<SysRole>> getRoleList(
             @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer page,
@@ -65,6 +67,7 @@ public class SysRoleController {
      * @return 成功提示
      */
     @Operation(summary = "创建角色", description = "新增角色信息")
+    @Log(module = "角色管理", type = "新增")
     @PostMapping
     public Result<SysRole> createRole(@Valid @RequestBody SysRole role) {
         sysRoleService.createRole(role);
@@ -79,6 +82,7 @@ public class SysRoleController {
      * @return 成功提示
      */
     @Operation(summary = "更新角色", description = "更新已存在的角色信息")
+    @Log(module = "角色管理", type = "修改")
     @PutMapping("/{id}")
     public Result<Void> updateRole(@Parameter(description = "角色ID") @PathVariable Long id,
             @Valid @RequestBody SysRole role) {
@@ -94,6 +98,7 @@ public class SysRoleController {
      * @return 成功提示
      */
     @Operation(summary = "删除角色", description = "根据ID删除角色信息")
+    @Log(module = "角色管理", type = "删除")
     @DeleteMapping("/{id}")
     public Result<Void> deleteRole(@Parameter(description = "角色ID") @PathVariable Long id) {
         sysRoleService.deleteRole(id);
@@ -107,6 +112,7 @@ public class SysRoleController {
      * @return 成功提示
      */
     @Operation(summary = "批量删除角色", description = "根据ID列表批量删除角色")
+    @Log(module = "角色管理", type = "删除")
     @DeleteMapping
     public Result<Void> deleteRoles(@RequestBody List<Long> ids) {
         sysRoleService.deleteRoles(ids);
@@ -122,6 +128,7 @@ public class SysRoleController {
      * @return 成功提示
      */
     @Operation(summary = "分配权限给角色", description = "为角色分配一个或多个权限")
+    @Log(module = "角色管理", type = "授权")
     @PostMapping("/{id}/permissions")
     public Result<Void> assignRolePermissions(@Parameter(description = "角色ID") @PathVariable Long id,
             @RequestBody List<Long> permissionIds) {

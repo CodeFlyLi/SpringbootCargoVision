@@ -47,5 +47,10 @@ public class AiProperties {
          * API 接口地址 (Endpoint)
          */
         private String endpoint;
+
+        /**
+         * 自定义 AI 接口地址 (EasyDL Custom Endpoint)
+         */
+        private String customEndpoint;
     }
 }

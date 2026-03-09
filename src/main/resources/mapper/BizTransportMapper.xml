@@ -47,6 +47,8 @@
     <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
     <!-- 更新时间 -->
     <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    <!-- 客户名称 -->
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR"/>
     <!-- 关联字段：货物名称 -->
     <result column="goods_name" property="goodsName" jdbcType="VARCHAR"/>
     <!-- 关联字段：货物编号 -->
@@ -103,6 +105,9 @@
     <if test="goodsName != null and goodsName != ''">
             and g.name like concat('%', #{goodsName}, '%')
     </if>
+    <if test="customerName != null and customerName != ''">
+            and t.customer_name like concat('%', #{customerName}, '%')
+    </if>
     <!-- 数据权限过滤 -->
     <if test="createdBy != null">
             and t.created_by = #{createdBy}
@@ -137,14 +142,15 @@
       <if test="endTime != null">end_time = #{endTime},</if>
       <if test="status != null">status = #{status},</if>
       <if test="remarks != null">remarks = #{remarks},</if>
+      <if test="customerName != null">customer_name = #{customerName},</if>
     </set>
         where id = #{id}
   </update>
 
   <!-- 
-      逻辑删除运输任务
+      根据 ID 逻辑删除运输记录
       将 is_deleted 字段置为 1
-      @param id 运输任务 ID
+      @param id 运输记录 ID
     -->
   <update id="deleteById">
         update biz_transports set is_deleted = 1 where id = #{id}

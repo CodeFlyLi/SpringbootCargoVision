@@ -10,115 +10,123 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * 货物检测记录实体类
+ * 货物检测记录实体类 (Entity Layer)
  * 对应数据库表: biz_detection
+ *
+ * 【领域模型定位】
+ * 本类是货物破损检测业务的核心领域模型，聚合了单次检测的所有信息。
+ * 它处于“运输单 (Transport)”与“检测图片 (DetectionImage)”之间：
+ * 1. 多对一关联 BizTransport：一次运输可能有多次检测。
+ * 2. 一对多关联 BizDetectionImage：一次检测包含多张图片。
+ *
+ * 【生命周期】
+ * 1. 创建 (Created)：用户上传图片并发起检测，系统生成记录，状态为 "0-待处理"。
+ * 2. 检测中 (Detecting)：调用 AI 接口分析图片（此过程通常是同步的，但也支持异步）。
+ * 3. 完成 (Completed)：AI 返回结果，系统计算最大破损等级，更新状态。
+ * 4. 审核 (Verified)：管理员人工复核 AI 结果（可选），修改 isVerified 状态。
+ *
+ * 【字段分类】
+ * - 基础信息：ID, 编号, 时间
+ * - 关联信息：TransportID, OperatorID
+ * - 核心业务结果：DamageLevel, DamageType, Confidence
+ * - V2 扩展字段：DetectionMode (采集方式), Location (地点)
  */
 @Data
-@Schema(description = "货物检测记录")
+@Schema(description = "货物检测记录 (核心业务实体)")
 public class BizDetection {
-    @Schema(description = "主键 ID")
+    @Schema(description = "主键 ID (自增)")
     private Long id;
 
-    @Schema(description = "检测编号 (唯一标识)")
+    @Schema(description = "检测编号 (唯一业务标识, 格式: D + UUID前8位)")
     @NotBlank(message = "检测编号不能为空")
     @Size(max = 50, message = "检测编号不能超过50字符")
     private String detectionNo;
 
-    @Schema(description = "关联的运输记录 ID")
+    @Schema(description = "关联的运输记录 ID (外键关联 biz_transport 表)")
     @NotNull(message = "关联运输记录不能为空")
     private Long transportId;
 
-    @Schema(description = "操作员用户 ID")
+    @Schema(description = "操作员用户 ID (当前登录用户)")
     private Long operatorId;
 
-    @Schema(description = "原始图片 URL")
-    private String imageUrl;
-
-    @Schema(description = "处理后图片 URL")
-    private String processedImageUrl;
-
-    @Schema(description = "检测时间")
+    @Schema(description = "检测发生时间")
     private LocalDateTime detectionTime;
 
-    @Schema(description = "破损等级: 0-无破损, 1-轻微, 2-中度, 3-严重")
+    @Schema(description = "综合破损等级: 0-无破损, 1-轻微, 2-中度, 3-严重 (取所有图片中最高等级)")
     private Integer damageLevel;
 
-    @Schema(description = "破损面积 (cm²)")
+    @Schema(description = "预估破损面积 (cm²)")
     @DecimalMin(value = "0.0", message = "破损面积必须大于等于0")
     private BigDecimal damageArea;
 
-    @Schema(description = "置信度 (0.0 - 1.0)")
+    @Schema(description = "AI 识别置信度 (0.0 - 1.0, 越接近 1 越可信)")
     @DecimalMin(value = "0.0", message = "置信度必须大于等于0")
     @DecimalMax(value = "1.0", message = "置信度必须小于等于1")
     private BigDecimal confidence;
 
-    @Schema(description = "破损类型")
+    @Schema(description = "主要破损类型 (如: 划痕, 凹陷, 破洞)")
     @Size(max = 50, message = "破损类型不能超过50字符")
     private String damageType;
 
-    @Schema(description = "破损描述")
+    @Schema(description = "详细破损描述 (支持 AI 生成或人工备注)")
     private String damageDescription;
 
-    @Schema(description = "处理建议")
+    @Schema(description = "AI 处理建议 (如: 建议拒收, 建议修复)")
     private String suggestion;
 
-    @Schema(description = "状态: 0-待处理, 1-已处理")
+    @Schema(description = "业务状态: 0-待处理 (默认), 1-已处理 (人工确认)")
     private Integer status;
 
-    @Schema(description = "创建时间", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "记录创建时间 (自动填充)", accessMode = Schema.AccessMode.READ_ONLY)
     private LocalDateTime createdAt;
 
-    @Schema(description = "更新时间", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "记录最后更新时间 (自动填充)")
     private LocalDateTime updatedAt;
 
-    // --- 非数据库字段 (业务展示用) ---
-    @Schema(description = "运输单号", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "检测场景 (如: 仓库入库, 码头卸货)")
+    private String sceneType;
+
+    @Schema(description = "物流节点名称")
+    private String nodeName;
+
+    @Schema(description = "检测图片子列表 (一对多关联)", accessMode = Schema.AccessMode.READ_ONLY)
+    private List<BizDetectionImage> imageList;
+
+    // --- 新增业务字段 (V2) ---
+    @Schema(description = "图片采集方式: 1-本地文件上传, 2-摄像头实时拍摄")
+    private Integer detectionMode;
+
+    @Schema(description = "具体检测地点 (手动输入或 GPS 定位)")
+    @Size(max = 100, message = "检测地点不能超过100字符")
+    private String detectionLocation;
+
+    @Schema(description = "责任主体 (如: 物流公司 A, 供应商 B)")
+    @Size(max = 50, message = "责任主体不能超过50字符")
+    private String responsibilitySubject;
+
+    @Schema(description = "是否经过人工核对: 0-否 (AI 结果), 1-是 (人工已确认)")
+    private Integer isVerified;
+
+    @Schema(description = "AI 原始返回结果 (JSON 字符串备份)")
+    private String originalAiResult;
+
+    @Schema(description = "AI 原始平均置信度")
+    private BigDecimal aiConfidence;
+
+    // --- 非数据库字段 (DTO 视图字段) ---
+    @Schema(description = "关联运输单号 (用于前端展示)", accessMode = Schema.AccessMode.READ_ONLY)
     private String transportNo;
 
-    @Schema(description = "货物名称", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "关联货物名称 (用于前端展示)", accessMode = Schema.AccessMode.READ_ONLY)
     private String goodsName;
 
-    @Schema(description = "操作员姓名", accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(description = "操作员姓名 (用于前端展示)", accessMode = Schema.AccessMode.READ_ONLY)
     private String operatorName;
 
-    @Schema(description = "原始检测框数据 (Mode B 支持)", accessMode = Schema.AccessMode.READ_ONLY)
-    private java.util.List<java.util.Map<String, Object>> boxes;
+    @Schema(description = "原始检测框坐标数据 (用于前端绘图)", accessMode = Schema.AccessMode.READ_ONLY)
+    private List<Map<String, Object>> boxes;
 }
-/**
- * 这是一个非常敏锐的架构设计问题！您的直觉很准，这些字段确实有些“特殊”。
- * 
- * 简单来说， 是因为“数据库存储的高效性”和“前端展示的直观性”之间存在矛盾，我们需要这些字段来做“桥梁”。
- * 
- * 具体原因分为两类，我为您详细拆解：
- * 
- * ### 1. “关联数据”：为了不存重复数据（数据库规范）
- * 像 transportNo （运输单号）、 goodsName （货物名称）、 operatorName （操作员姓名） 属于这一类。
- * 
- * - 数据库里有吗？
- * - 有，但 不在 biz_detections （检测表）里，而在它们各自的表里（如 biz_transports 、 base_goods 、
- * sys_users ）。
- * - 在 biz_detections 表里，我们只存了 ID （如 transport_id , operator_id
- * ）。这是数据库设计的“范式”原则，为了节省空间并防止数据不一致（例如：如果货物改名了，只改货物表就行，不用把检测表全改一遍）。
- * - 为什么要加这个字段？
- * - 前端显示时，不能只显示 运输单ID: 100 ，用户看不懂。用户要看 运输单号: T20231001 。
- * - 为了方便前端，后端在查询时，会顺便去别的表把这些“名字”查出来，临时塞到这个 transportNo 字段里，一起返给前端。
- * - 结论 ：它们是“搬运工”，负责把别的表里的数据带给前端。
- * ### 2. “动态数据”：内存中临时生成的（如 boxes）
- * 像 boxes （检测框坐标数据）属于这一类。
- * 
- * - 数据库里有吗？
- * - 通常 没有 直接对应的列。
- * - 虽然我们可以把这些坐标存成一个很长的 JSON 字符串放在数据库里，但在大多数业务中，我们主要存“结果”（如图片URL、破损等级）。
- * - 为什么要加这个字段？
- * - 这是给前端 Mode B（前端绘图） 专用的。
- * - 当 AI 刚刚检测完那一瞬间，内存里有这些坐标数据。为了让前端能立即画出红框，我们把这些数据临时放到 boxes 字段里传回去。
- * - 一旦请求结束，这个数据可能就不存了（或者以其他形式如图片存了），下次再查历史记录时，可能就只给图片 URL 了。
- * - 结论 ：它是“一次性餐具”，为了当次请求的即时交互。
- * ### 总结
- * 您可以把 BizDetection 类看作是 “实体 (Entity) + 数据传输对象 (DTO)” 的合体：
- * 
- * 1. 上半部分 （数据库字段）：是 仓库里的货 ，实打实存在表里的。
- * 2. 下半部分 （非数据库字段）：是 快递包装盒 ，为了发货给前端（用户）看，临时打包加上去的标签或说明书。
- * 这样做的好处是： 代码写起来简单 ，不需要单独再写一个 BizDetectionDTO 类，直接复用同一个类，既能存数据库，又能灵活给前端发数据。
- */

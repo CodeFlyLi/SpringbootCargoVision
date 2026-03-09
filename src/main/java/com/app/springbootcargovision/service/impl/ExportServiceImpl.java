@@ -1,37 +1,53 @@
 package com.app.springbootcargovision.service.impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.app.springbootcargovision.config.FileProperties;
 import com.app.springbootcargovision.model.BizDetection;
+import com.app.springbootcargovision.model.BizDetectionImage;
 import com.app.springbootcargovision.service.BizDetectionService;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.alibaba.excel.annotation.ExcelProperty;
 
 @Service
 public class ExportServiceImpl {
 
+    private static final Logger logger = LoggerFactory.getLogger(ExportServiceImpl.class);
     private final BizDetectionService bizDetectionService;
+    private final FileProperties fileProperties;
 
-    public ExportServiceImpl(BizDetectionService bizDetectionService) {
+    public ExportServiceImpl(BizDetectionService bizDetectionService, FileProperties fileProperties) {
         this.bizDetectionService = bizDetectionService;
+        this.fileProperties = fileProperties;
     }
 
     /**
      * 导出检测记录到 Excel
      */
     public void exportDetectionToExcel(HttpServletResponse response, String detectionNo, String transportNo,
-            String goodsName, Integer damageLevel) throws IOException {
+            String goodsName, Integer damageLevel, String sceneType, String nodeName) throws IOException {
         // 1. 获取数据 (不分页，获取全部)
         List<BizDetection> list = bizDetectionService
-                .getDetectionList(1, Integer.MAX_VALUE, detectionNo, transportNo, goodsName, damageLevel).getList();
+                .getDetectionList(1, Integer.MAX_VALUE, detectionNo, transportNo, goodsName, damageLevel, sceneType,
+                        nodeName)
+                .getList();
 
         // 2. 设置响应头
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -115,6 +131,14 @@ public class ExportServiceImpl {
         addTableCell(table, "货物名称:", labelFont);
         addTableCell(table, detection.getGoodsName(), normalFont);
 
+        addTableCell(table, "检测地点:", labelFont);
+        addTableCell(table, detection.getDetectionLocation() != null ? detection.getDetectionLocation()
+                : (detection.getSceneType() != null ? detection.getSceneType() : "-"), normalFont);
+
+        addTableCell(table, "责任主体:", labelFont);
+        addTableCell(table, detection.getResponsibilitySubject() != null ? detection.getResponsibilitySubject()
+                : (detection.getNodeName() != null ? detection.getNodeName() : "-"), normalFont);
+
         addTableCell(table, "操作员:", labelFont);
         addTableCell(table, detection.getOperatorName(), normalFont);
 
@@ -159,37 +183,63 @@ public class ExportServiceImpl {
         document.add(resultTable);
 
         // 图片展示 (如果有)
-        if (detection.getImageUrl() != null && !detection.getImageUrl().isEmpty()) {
-            try {
-                Paragraph p = new Paragraph("原始图片", labelFont);
-                p.setAlignment(Element.ALIGN_CENTER);
-                p.setSpacingBefore(10);
-                document.add(p);
+        if (detection.getImageList() != null && !detection.getImageList().isEmpty()) {
+            for (int i = 0; i < detection.getImageList().size(); i++) {
+                BizDetectionImage imageDetail = detection.getImageList().get(i);
+                String imageUrl = imageDetail.getOriginalUrl();
+                String processedImageUrl = imageDetail.getProcessedUrl();
 
-                Image img = Image.getInstance(detection.getImageUrl());
-                img.scaleToFit(500, 300);
-                img.setAlignment(Element.ALIGN_CENTER);
-                img.setSpacingBefore(5);
-                document.add(img);
-            } catch (Exception e) {
-                document.add(new Paragraph("原始图片加载失败: " + e.getMessage(), normalFont));
-            }
-        }
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    try {
+                        Paragraph p = new Paragraph(
+                                String.format("图片 %d - 原始图片", i + 1), labelFont);
+                        p.setAlignment(Element.ALIGN_CENTER);
+                        p.setSpacingBefore(10);
+                        document.add(p);
 
-        if (detection.getProcessedImageUrl() != null && !detection.getProcessedImageUrl().isEmpty()) {
-            try {
-                Paragraph p = new Paragraph("处理后图片", labelFont);
-                p.setAlignment(Element.ALIGN_CENTER);
-                p.setSpacingBefore(10);
-                document.add(p);
+                        String originalFileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                        File originalImageFile = new File(fileProperties.getUploadDir(), originalFileName);
 
-                Image img = Image.getInstance(detection.getProcessedImageUrl());
-                img.scaleToFit(500, 300);
-                img.setAlignment(Element.ALIGN_CENTER);
-                img.setSpacingBefore(5);
-                document.add(img);
-            } catch (Exception e) {
-                document.add(new Paragraph("处理后图片加载失败: " + e.getMessage(), normalFont));
+                        if (originalImageFile.exists()) {
+                            Image img = Image.getInstance(originalImageFile.getAbsolutePath());
+                            img.scaleToFit(500, 300);
+                            img.setAlignment(Element.ALIGN_CENTER);
+                            img.setSpacingBefore(5);
+                            document.add(img);
+                        } else {
+                            document.add(
+                                    new Paragraph("原始图片文件未找到: " + originalImageFile.getAbsolutePath(), normalFont));
+                        }
+                    } catch (Exception e) {
+                        document.add(new Paragraph("原始图片加载失败: " + e.getMessage(), normalFont));
+                    }
+                }
+
+                if (processedImageUrl != null && !processedImageUrl.isEmpty()) {
+                    try {
+                        Paragraph p = new Paragraph(
+                                String.format("图片 %d - 处理后图片", i + 1), labelFont);
+                        p.setAlignment(Element.ALIGN_CENTER);
+                        p.setSpacingBefore(10);
+                        document.add(p);
+
+                        String processedFileName = processedImageUrl.substring(processedImageUrl.lastIndexOf("/") + 1);
+                        File processedImageFile = new File(fileProperties.getUploadDir(), processedFileName);
+
+                        if (processedImageFile.exists()) {
+                            Image img = Image.getInstance(processedImageFile.getAbsolutePath());
+                            img.scaleToFit(500, 300);
+                            img.setAlignment(Element.ALIGN_CENTER);
+                            img.setSpacingBefore(5);
+                            document.add(img);
+                        } else {
+                            document.add(
+                                    new Paragraph("处理后图片文件未找到: " + processedImageFile.getAbsolutePath(), normalFont));
+                        }
+                    } catch (Exception e) {
+                        document.add(new Paragraph("处理后图片加载失败: " + e.getMessage(), normalFont));
+                    }
+                }
             }
         }
 
@@ -226,6 +276,9 @@ public class ExportServiceImpl {
             data.setTransportNo(item.getTransportNo());
             data.setGoodsName(item.getGoodsName());
             data.setOperatorName(item.getOperatorName());
+            data.setSceneType(item.getDetectionLocation() != null ? item.getDetectionLocation() : item.getSceneType());
+            data.setNodeName(
+                    item.getResponsibilitySubject() != null ? item.getResponsibilitySubject() : item.getNodeName());
             data.setDamageLevel(getDamageLevelText(item.getDamageLevel()));
             data.setDamageType(item.getDamageType());
             data.setDamageArea(item.getDamageArea());
@@ -233,53 +286,84 @@ public class ExportServiceImpl {
             data.setConfidence(item.getConfidence());
             data.setDetectionTime(item.getDetectionTime());
             data.setSuggestion(item.getSuggestion());
-            data.setImageUrl(item.getImageUrl());
-            data.setProcessedImageUrl(item.getProcessedImageUrl());
+
+            if (item.getImageList() != null && !item.getImageList().isEmpty()) {
+                BizDetectionImage img = item.getImageList().get(0);
+                data.setImageUrl(loadImageAsBytes(img.getOriginalUrl()));
+                data.setProcessedImageUrl(loadImageAsBytes(img.getProcessedUrl()));
+            }
+
             return data;
         }).toList();
     }
 
+    private byte[] loadImageAsBytes(String relativeUrl) {
+        if (relativeUrl == null || relativeUrl.isEmpty()) {
+            return null;
+        }
+        try {
+            String fileName = relativeUrl.substring(relativeUrl.lastIndexOf("/") + 1);
+            File imageFile = new File(fileProperties.getUploadDir(), fileName);
+            if (imageFile.exists()) {
+                return Files.readAllBytes(imageFile.toPath());
+            }
+        } catch (IOException e) {
+            logger.error("加载图片失败: {}", relativeUrl, e);
+        }
+        return null;
+    }
+
     // 内部类用于 Excel 导出数据模型
-    @com.alibaba.excel.annotation.ExcelIgnoreUnannotated
+    @ExcelIgnoreUnannotated
+    @ContentRowHeight(100)
+    @ColumnWidth(20)
     public static class DetectionExportData {
-        @com.alibaba.excel.annotation.ExcelProperty("检测编号")
+        @ExcelProperty("检测编号")
         private String detectionNo;
 
-        @com.alibaba.excel.annotation.ExcelProperty("运输单号")
+        @ExcelProperty("运输单号")
         private String transportNo;
 
-        @com.alibaba.excel.annotation.ExcelProperty("货物名称")
+        @ExcelProperty("货物名称")
         private String goodsName;
 
-        @com.alibaba.excel.annotation.ExcelProperty("操作员")
+        @ExcelProperty("操作员")
         private String operatorName;
 
-        @com.alibaba.excel.annotation.ExcelProperty("破损等级")
+        @ExcelProperty("检测地点")
+        private String sceneType;
+
+        @ExcelProperty("责任主体")
+        private String nodeName;
+
+        @ExcelProperty("破损等级")
         private String damageLevel;
 
-        @com.alibaba.excel.annotation.ExcelProperty("破损类型")
+        @ExcelProperty("破损类型")
         private String damageType;
 
-        @com.alibaba.excel.annotation.ExcelProperty("破损面积(cm²)")
-        private java.math.BigDecimal damageArea;
+        @ExcelProperty("破损面积(cm²)")
+        private BigDecimal damageArea;
 
-        @com.alibaba.excel.annotation.ExcelProperty("破损描述")
+        @ExcelProperty("破损描述")
         private String damageDescription;
 
-        @com.alibaba.excel.annotation.ExcelProperty("置信度")
-        private java.math.BigDecimal confidence;
+        @ExcelProperty("置信度")
+        private BigDecimal confidence;
 
-        @com.alibaba.excel.annotation.ExcelProperty("检测时间")
-        private java.time.LocalDateTime detectionTime;
+        @ExcelProperty("检测时间")
+        private LocalDateTime detectionTime;
 
-        @com.alibaba.excel.annotation.ExcelProperty("处理建议")
+        @ExcelProperty("处理建议")
         private String suggestion;
 
-        @com.alibaba.excel.annotation.ExcelProperty("原始图片URL")
-        private String imageUrl;
+        @ExcelProperty("原始图片")
+        @ColumnWidth(40)
+        private byte[] imageUrl;
 
-        @com.alibaba.excel.annotation.ExcelProperty("处理图片URL")
-        private String processedImageUrl;
+        @ExcelProperty("处理图片")
+        @ColumnWidth(40)
+        private byte[] processedImageUrl;
 
         // Getters and Setters
         public String getDetectionNo() {
@@ -314,6 +398,22 @@ public class ExportServiceImpl {
             this.operatorName = operatorName;
         }
 
+        public String getSceneType() {
+            return sceneType;
+        }
+
+        public void setSceneType(String sceneType) {
+            this.sceneType = sceneType;
+        }
+
+        public String getNodeName() {
+            return nodeName;
+        }
+
+        public void setNodeName(String nodeName) {
+            this.nodeName = nodeName;
+        }
+
         public String getDamageLevel() {
             return damageLevel;
         }
@@ -330,11 +430,11 @@ public class ExportServiceImpl {
             this.damageType = damageType;
         }
 
-        public java.math.BigDecimal getDamageArea() {
+        public BigDecimal getDamageArea() {
             return damageArea;
         }
 
-        public void setDamageArea(java.math.BigDecimal damageArea) {
+        public void setDamageArea(BigDecimal damageArea) {
             this.damageArea = damageArea;
         }
 
@@ -346,19 +446,19 @@ public class ExportServiceImpl {
             this.damageDescription = damageDescription;
         }
 
-        public java.math.BigDecimal getConfidence() {
+        public BigDecimal getConfidence() {
             return confidence;
         }
 
-        public void setConfidence(java.math.BigDecimal confidence) {
+        public void setConfidence(BigDecimal confidence) {
             this.confidence = confidence;
         }
 
-        public java.time.LocalDateTime getDetectionTime() {
+        public LocalDateTime getDetectionTime() {
             return detectionTime;
         }
 
-        public void setDetectionTime(java.time.LocalDateTime detectionTime) {
+        public void setDetectionTime(LocalDateTime detectionTime) {
             this.detectionTime = detectionTime;
         }
 
@@ -370,19 +470,19 @@ public class ExportServiceImpl {
             this.suggestion = suggestion;
         }
 
-        public String getImageUrl() {
+        public byte[] getImageUrl() {
             return imageUrl;
         }
 
-        public void setImageUrl(String imageUrl) {
+        public void setImageUrl(byte[] imageUrl) {
             this.imageUrl = imageUrl;
         }
 
-        public String getProcessedImageUrl() {
+        public byte[] getProcessedImageUrl() {
             return processedImageUrl;
         }
 
-        public void setProcessedImageUrl(String processedImageUrl) {
+        public void setProcessedImageUrl(byte[] processedImageUrl) {
             this.processedImageUrl = processedImageUrl;
         }
     }
