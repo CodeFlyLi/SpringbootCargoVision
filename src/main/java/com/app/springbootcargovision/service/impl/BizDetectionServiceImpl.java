@@ -137,13 +137,27 @@ public class BizDetectionServiceImpl implements BizDetectionService {
                     String fileName = originalUrl.substring(originalUrl.lastIndexOf("/") + 1);
                     File originalFile = new File(uploadDir, fileName);
 
+                    // 增加文件存在性校验和日志
+                    if (!originalFile.exists()) {
+                        logger.warn("原始图片文件不存在: {}, 尝试使用绝对路径查找", originalFile.getAbsolutePath());
+                        // 尝试从项目根目录查找
+                        File absoluteFile = new File(System.getProperty("user.dir"), "uploads/" + fileName);
+                        if (absoluteFile.exists()) {
+                            originalFile = absoluteFile;
+                            logger.info("找到文件于: {}", originalFile.getAbsolutePath());
+                        } else {
+                            logger.error("无法找到原始图片文件: {}", fileName);
+                            throw new IOException("原始图片文件丢失: " + fileName);
+                        }
+                    }
+
                     if (originalFile.exists()) {
                         List<Map<String, Object>> results = objectMapper.readValue(image.getBoundingBoxes(),
                                 List.class);
                         BufferedImage bi = drawBoundingBoxes(originalFile, results);
 
                         String processedFileName = "manual_box_" + UUID.randomUUID() + ".jpg";
-                        File processedFile = new File(uploadDir, processedFileName);
+                        File processedFile = new File(originalFile.getParent(), processedFileName); // 保存到同一目录
                         ImageIO.write(bi, "jpg", processedFile);
 
                         image.setProcessedUrl("/uploads/" + processedFileName);
@@ -153,6 +167,7 @@ public class BizDetectionServiceImpl implements BizDetectionService {
                 }
             } catch (Exception e) {
                 logger.error("根据手动标注坐标重新生成图片失败", e);
+                throw new RuntimeException("生成标注图片失败: " + e.getMessage());
             }
         }
 
