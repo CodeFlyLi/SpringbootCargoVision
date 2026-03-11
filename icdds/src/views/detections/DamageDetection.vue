@@ -412,6 +412,9 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="correctionDialogVisible = false">取消</el-button>
+          <el-button type="success" @click="saveAnnotation" :loading="correctionSubmitting"
+            >保存标注</el-button
+          >
           <el-button type="primary" @click="submitCorrection" :loading="correctionSubmitting"
             >提交修正</el-button
           >
@@ -1275,6 +1278,102 @@ const clearAllAnnotations = () => {
   }
 }
 
+const saveAnnotation = async () => {
+  if (!correctionForm.id) return
+
+  try {
+    correctionSubmitting.value = true
+
+    // 格式化标注框为后端要求的 JSON 结构
+    if (manualBoxes.value.length > 0) {
+      const formattedBoxes = manualBoxes.value.map((box) => ({
+        name: box.name || correctionForm.damageType || '破损',
+        score: box.score || 1.0,
+        location: {
+          left: Math.round(box.x),
+          top: Math.round(box.y),
+          width: Math.round(box.w),
+          height: Math.round(box.h),
+        },
+      }))
+      correctionForm.boundingBoxes = JSON.stringify(formattedBoxes)
+
+      if (!correctionForm.damageDescription.includes('人工标注')) {
+        correctionForm.damageDescription += ' [人工已核对/标注区域]'
+      }
+
+      // 生成 Base64 图片
+      const img = annotationImgRef.value
+      const canvas = annotationCanvasRef.value
+      if (img && canvas) {
+        const tempCanvas = document.createElement('canvas')
+        tempCanvas.width = img.naturalWidth
+        tempCanvas.height = img.naturalHeight
+        const tempCtx = tempCanvas.getContext('2d')
+
+        // 画原始图
+        tempCtx.drawImage(img, 0, 0)
+
+        // 画标注框
+        // 注意：canvas 上的坐标是基于原始图片尺寸的（我们在 draw/stopDrawing 中已经处理了 scale）
+        // 但是 canvas 显示时可能被缩放了，所以我们直接用 manualBoxes (存的是原始坐标)
+        tempCtx.lineWidth = Math.max(2, (img.naturalWidth / 500) * 2)
+        manualBoxes.value.forEach((box) => {
+          tempCtx.strokeStyle = '#F56C6C' // 红色
+          tempCtx.strokeRect(box.x, box.y, box.w, box.h)
+
+          // 可选：画标签背景和文字
+          // tempCtx.font = '24px sans-serif'
+          // const label = box.name
+          // const textMetrics = tempCtx.measureText(label)
+          // tempCtx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+          // tempCtx.fillRect(box.x, box.y - 30, textMetrics.width + 10, 30)
+          // tempCtx.fillStyle = '#fff'
+          // tempCtx.fillText(label, box.x + 5, box.y - 8)
+        })
+
+        correctionForm.base64Image = tempCanvas.toDataURL('image/jpeg', 0.9)
+      }
+    } else {
+      correctionForm.boundingBoxes = null
+      correctionForm.base64Image = null
+    }
+
+    const res = await updateDetectionImage(correctionForm)
+
+    ElMessage.success('标注已保存')
+
+    // 更新前端显示的当前结果
+    if (currentResult.value && currentResult.value.id === correctionForm.id) {
+      // 优先使用后端返回的最新数据
+      if (res) {
+        currentResult.value.damageLevel = res.damageLevel
+        currentResult.value.damageType = res.damageType
+        currentResult.value.damageDescription = res.damageDescription
+        if (res.processedUrl) {
+          currentResult.value.processedUrl = res.processedUrl
+        }
+        if (res.boundingBoxes) {
+          currentResult.value.boundingBoxes = res.boundingBoxes
+        }
+      } else {
+        // 降级处理
+        currentResult.value.damageLevel = correctionForm.damageLevel
+        currentResult.value.damageType = correctionForm.damageType
+        currentResult.value.damageDescription = correctionForm.damageDescription
+        if (correctionForm.boundingBoxes) {
+          currentResult.value.boundingBoxes = correctionForm.boundingBoxes
+        }
+      }
+    }
+  } catch (error) {
+    console.error('标注保存失败', error)
+    ElMessage.error('标注保存失败: ' + (error.message || '未知错误'))
+  } finally {
+    correctionSubmitting.value = false
+  }
+}
+
 const submitCorrection = async () => {
   if (!correctionForm.id) return
 
@@ -1298,11 +1397,33 @@ const submitCorrection = async () => {
       if (!correctionForm.damageDescription.includes('人工标注')) {
         correctionForm.damageDescription += ' [人工已核对/标注区域]'
       }
+
+      // 生成 Base64 图片
+      const img = annotationImgRef.value
+      const canvas = annotationCanvasRef.value
+      if (img && canvas) {
+        const tempCanvas = document.createElement('canvas')
+        tempCanvas.width = img.naturalWidth
+        tempCanvas.height = img.naturalHeight
+        const tempCtx = tempCanvas.getContext('2d')
+
+        // 画原始图
+        tempCtx.drawImage(img, 0, 0)
+
+        // 画标注框
+        tempCtx.lineWidth = Math.max(2, (img.naturalWidth / 500) * 2)
+        manualBoxes.value.forEach((box) => {
+          tempCtx.strokeStyle = '#F56C6C' // 红色
+          tempCtx.strokeRect(box.x, box.y, box.w, box.h)
+        })
+
+        correctionForm.base64Image = tempCanvas.toDataURL('image/jpeg', 0.9)
+      }
     } else {
       correctionForm.boundingBoxes = null
+      correctionForm.base64Image = null
     }
 
-    // 调用后端更新接口
     const res = await updateDetectionImage(correctionForm)
 
     ElMessage.success('人工修正已提交')
@@ -1310,20 +1431,30 @@ const submitCorrection = async () => {
 
     // 更新前端显示的当前结果
     if (currentResult.value && currentResult.value.id === correctionForm.id) {
-      currentResult.value.damageLevel = correctionForm.damageLevel
-      currentResult.value.damageType = correctionForm.damageType
-      currentResult.value.damageDescription = correctionForm.damageDescription
-      // 如果后端返回了新的处理后图片地址，更新它
-      if (res && res.processedUrl) {
-        currentResult.value.processedUrl = res.processedUrl
-      }
-      if (correctionForm.boundingBoxes) {
-        currentResult.value.boundingBoxes = correctionForm.boundingBoxes
+      // 优先使用后端返回的最新数据
+      if (res) {
+        currentResult.value.damageLevel = res.damageLevel
+        currentResult.value.damageType = res.damageType
+        currentResult.value.damageDescription = res.damageDescription
+        if (res.processedUrl) {
+          currentResult.value.processedUrl = res.processedUrl
+        }
+        if (res.boundingBoxes) {
+          currentResult.value.boundingBoxes = res.boundingBoxes
+        }
+      } else {
+        // 降级处理
+        currentResult.value.damageLevel = correctionForm.damageLevel
+        currentResult.value.damageType = correctionForm.damageType
+        currentResult.value.damageDescription = correctionForm.damageDescription
+        if (correctionForm.boundingBoxes) {
+          currentResult.value.boundingBoxes = correctionForm.boundingBoxes
+        }
       }
     }
 
     // 刷新整个检测记录（可选，为了确保数据一致性）
-    // fetchDetections()
+    // 注意：当前页面主要用于单次检测，列表刷新在管理页面进行
   } catch (error) {
     console.error('修正提交失败', error)
     ElMessage.error('修正提交失败: ' + (error.message || '未知错误'))

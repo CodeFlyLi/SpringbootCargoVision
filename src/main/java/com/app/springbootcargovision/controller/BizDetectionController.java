@@ -63,14 +63,14 @@ public class BizDetectionController {
      * 用户在前端对 AI 检测结果（如破损等级、类型）进行人工复核和修正。
      *
      * @param image 包含更新信息的图片对象（必须包含 id）
-     * @return 成功状态
+     * @return 成功状态，包含更新后的图片对象
      */
     @Operation(summary = "人工修正检测子图", description = "人工修正单张子图的破损等级、类型或备注")
     @Log(module = "货物检测", type = "更新")
     @PutMapping("/image")
-    public Result<Void> updateDetectionImage(@RequestBody BizDetectionImage image) {
-        bizDetectionService.updateDetectionImage(image);
-        return Result.success();
+    public Result<BizDetectionImage> updateDetectionImage(@RequestBody BizDetectionImage image) {
+        BizDetectionImage updatedImage = bizDetectionService.updateDetectionImage(image);
+        return Result.success(updatedImage);
     }
 
     /**

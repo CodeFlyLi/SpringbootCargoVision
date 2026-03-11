@@ -22,8 +22,9 @@ public interface BizDetectionService {
          * 更新/修正检测子图详情
          * 
          * @param image 包含更新信息的图片对象 (必须包含 id)
+         * @return 更新后的图片对象
          */
-        void updateDetectionImage(BizDetectionImage image);
+        BizDetectionImage updateDetectionImage(BizDetectionImage image);
 
         /**
          * 分页查询检测记录

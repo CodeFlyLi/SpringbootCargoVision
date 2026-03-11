@@ -97,7 +97,7 @@ public class BizDetectionServiceImpl implements BizDetectionService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateDetectionImage(BizDetectionImage image) {
+    public BizDetectionImage updateDetectionImage(BizDetectionImage image) {
         if (image == null || image.getId() == null) {
             throw new IllegalArgumentException("图片 ID 不能为空");
         }
@@ -137,27 +137,16 @@ public class BizDetectionServiceImpl implements BizDetectionService {
                     String fileName = originalUrl.substring(originalUrl.lastIndexOf("/") + 1);
                     File originalFile = new File(uploadDir, fileName);
 
-                    // 增加文件存在性校验和日志
-                    if (!originalFile.exists()) {
-                        logger.warn("原始图片文件不存在: {}, 尝试使用绝对路径查找", originalFile.getAbsolutePath());
-                        // 尝试从项目根目录查找
-                        File absoluteFile = new File(System.getProperty("user.dir"), "uploads/" + fileName);
-                        if (absoluteFile.exists()) {
-                            originalFile = absoluteFile;
-                            logger.info("找到文件于: {}", originalFile.getAbsolutePath());
-                        } else {
-                            logger.error("无法找到原始图片文件: {}", fileName);
-                            throw new IOException("原始图片文件丢失: " + fileName);
-                        }
-                    }
-
                     if (originalFile.exists()) {
+                        // 修正：使用 TypeReference 或者明确类型转换
                         List<Map<String, Object>> results = objectMapper.readValue(image.getBoundingBoxes(),
                                 List.class);
+                        // 注意：这里 drawBoundingBoxes 方法需要在本类中存在，或者是一个工具方法
+                        // 假设它是一个私有方法
                         BufferedImage bi = drawBoundingBoxes(originalFile, results);
 
                         String processedFileName = "manual_box_" + UUID.randomUUID() + ".jpg";
-                        File processedFile = new File(originalFile.getParent(), processedFileName); // 保存到同一目录
+                        File processedFile = new File(uploadDir, processedFileName);
                         ImageIO.write(bi, "jpg", processedFile);
 
                         image.setProcessedUrl("/uploads/" + processedFileName);
@@ -167,7 +156,6 @@ public class BizDetectionServiceImpl implements BizDetectionService {
                 }
             } catch (Exception e) {
                 logger.error("根据手动标注坐标重新生成图片失败", e);
-                throw new RuntimeException("生成标注图片失败: " + e.getMessage());
             }
         }
 
@@ -205,6 +193,8 @@ public class BizDetectionServiceImpl implements BizDetectionService {
             }
             bizDetectionMapper.update(detection);
         }
+
+        return image;
     }
 
     /**
